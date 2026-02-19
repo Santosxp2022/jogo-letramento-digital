@@ -132,7 +132,8 @@
       const matricula = screen.querySelector("#matricula").value.trim();
       const curso = screen.querySelector("#curso").value;
       if (!nome || !matricula || !curso) return alert("Preencha nome, matrícula e curso.");
-      if (!/^[0-9]{4,20}$/.test(matricula)) return alert("Matrícula: use apenas números (4 a 20 dígitos).");
+      if (!/^[A-Za-z0-9\-_.]{4,25}$/.test(matricula))
+  return alert("Matrícula inválida. Use letras e/ou números (mín. 4 caracteres).");
       state.nome = nome; state.matricula = matricula; state.curso = curso;
       award({coins: 15, xp: 10, badge:"Cadastro concluído"});
       next();

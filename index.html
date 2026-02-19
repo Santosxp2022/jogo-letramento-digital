@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Missões do Letramento Digital</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    body { margin:0; background:#0b1020; color:#e8ecff; }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 18px; }
+    .card { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+            border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+    h1,h2 { margin: 0 0 10px; }
+    p { margin: 8px 0; color: rgba(232,236,255,0.88); line-height:1.35; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .col { flex:1 1 240px; }
+    label { display:block; font-size: 13px; opacity:0.9; margin-bottom:6px; }
+    input, select, textarea {
+      width:100%; box-sizing:border-box; border-radius:12px; border:1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.25); color:#e8ecff; padding: 10px 12px; outline:none;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .btns { display:flex; gap:10px; justify-content:flex-end; margin-top: 12px; flex-wrap:wrap; }
+    button { border:0; border-radius: 999px; padding: 10px 14px; cursor:pointer;
+      background: #7c5cff; color:white; font-weight: 650; }
+    button.secondary { background: rgba(255,255,255,0.10); color:#e8ecff; }
+    button:disabled { opacity:0.5; cursor:not-allowed; }
+    .hud { display:flex; gap:12px; flex-wrap:wrap; margin-bottom: 12px; }
+    .pill { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); }
+    .progress { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.10); overflow:hidden; }
+    .bar { height:100%; width:0%; background:#7c5cff; transition: width .25s ease; }
+    .toast { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(124,92,255,0.18); border:1px solid rgba(124,92,255,0.35); }
+    .choices { display:grid; gap: 10px; margin-top: 10px; }
+    .choice { padding: 12px; border-radius: 14px; border:1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.25); cursor:pointer; }
+    .choice.selected { outline: 2px solid rgba(124,92,255,0.9); background: rgba(124,92,255,0.16); }
+    .small { font-size: 12px; opacity:0.85; }
+    .divider { height:1px; background: rgba(255,255,255,0.10); margin: 14px 0; }
+    .tag { display:inline-block; margin: 6px 6px 0 0; padding: 6px 10px; border-radius: 999px;
+           background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); font-size: 12px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hud">
+    <div class="pill" id="hudStep">Missão 0/11</div>
+    <div class="pill" id="hudCoins">🪙 Moedas: 0</div>
+    <div class="pill" id="hudXP">⚡ XP: 0</div>
+  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div style="height:12px"></div>
+  <div class="card" id="screen"></div>
+</div>
+
+<script>
+  // COLE A URL DO SEU WEB APP AQUI (termina com /exec)
+  const WEB_APP_URL = "Chttps://script.google.com/macros/s/AKfycbxARY1fXLVQluNNEAGd3JzFNo1zIaQfFLbRhDKxjm_Ko8nBwxCz62bEme2uQmY4cWFidw/exec";
+
+  const state = {
+    startedAt: new Date().toISOString(),
+    coins: 0, xp: 0, badges: [],
+    step: 0,
+    nome: "", matricula: "", curso: "",
+    Q1_atividade: "", Q1_outro: "",
+    Q2_escolhas: [], Q2_outro: "", Q2_jogo_qual: "",
+    Q3_usa_estudar: "", Q3_1_exemplo: "",
+    Q4_como_aprendeu: "",
+    Q5_onde_busca: "",
+    Q6_verifica_info: "",
+    Q7_usou_IA: "", Q7_1_experiencia: "",
+    Q8_estrutura_IFAC: "",
+    Q9_prof_incentiva: "", Q9_1_exemplo: "",
+    Q10_dificuldade: "", Q10_outra: "",
+    Q11_habilidade: "", Q11_outra: "",
+    device: /Mobi|Android/i.test(navigator.userAgent) ? "celular" : "PC"
+  };
+
+  const el = (id) => document.getElementById(id);
+  const screen = el("screen");
+
+  function award({coins=10, xp=0, badge=null} = {}) {
+    state.coins += coins; state.xp += xp;
+    if (badge && !state.badges.includes(badge)) state.badges.push(badge);
+    el("hudCoins").textContent = `🪙 Moedas: ${state.coins}`;
+    el("hudXP").textContent = `⚡ XP: ${state.xp}`;
+  }
+
+  function setProgress() {
+    el("hudStep").textContent = `Missão ${Math.max(0,state.step)}/11`;
+    const pct = Math.min(100, (Math.max(0,state.step) / 11) * 100);
+    el("bar").style.width = pct + "%";
+  }
+
+  function next(){ state.step++; setProgress(); render(); }
+  function back(){ state.step = Math.max(0, state.step-1); setProgress(); render(); }
+
+  function escapeHtml(s){
+    return (s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function sel(v){ return state.curso===v ? "selected" : ""; }
+
+  function renderIntro() {
+    screen.innerHTML = `
+      <h1>Missões do Letramento Digital</h1>
+      <p>Esta é uma entrevista em formato de jogo. Não há respostas certas ou erradas. Responda com sinceridade.</p>
+      <p class="small">As respostas serão usadas apenas para fins acadêmicos e tratadas com confidencialidade.</p>
+      <div class="divider"></div>
+      <h2>Cadastro</h2>
+      <div class="row">
+        <div class="col">
+          <label>Nome</label>
+          <input id="nome" placeholder="Seu nome completo" value="${escapeHtml(state.nome)}"/>
+        </div>
+        <div class="col">
+          <label>Matrícula</label>
+          <input id="matricula" placeholder="Somente números" inputmode="numeric" value="${escapeHtml(state.matricula)}"/>
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <label>Curso</label>
+      <select id="curso">
+        <option value="">Selecione...</option>
+        <option ${sel("Técnico em Agropecuária")}>Técnico em Agropecuária</option>
+        <option ${sel("Técnico em Alimentos")}>Técnico em Alimentos</option>
+        <option ${sel("Técnico em Biotecnologia")}>Técnico em Biotecnologia</option>
+      </select>
+      <div class="btns"><button id="startBtn">Começar</button></div>
+      <div class="toast small">Dica: você ganha moedas só por participar 🙂</div>
+    `;
+    el("startBtn").onclick = () => {
+      const nome = screen.querySelector("#nome").value.trim();
+      const matricula = screen.querySelector("#matricula").value.trim();
+      const curso = screen.querySelector("#curso").value;
+      if (!nome || !matricula || !curso) return alert("Preencha nome, matrícula e curso.");
+      if (!/^[0-9]{4,20}$/.test(matricula)) return alert("Matrícula: use apenas números (4 a 20 dígitos).");
+      state.nome = nome; state.matricula = matricula; state.curso = curso;
+      award({coins: 15, xp: 10, badge:"Cadastro concluído"});
+      next();
+    };
+  }
+
+  function renderChoices({title, subtitle, options, selected, multi=false, limit=null, onSelect, extraHtml=""}) {
+    const info = multi && limit ? `<div class="small">Marque até <b>${limit}</b>. (${selected.length}/${limit})</div>` : "";
+    screen.innerHTML = `
+      <h2>${title}</h2>
+      <p class="small">${subtitle||""}</p>
+      ${info}
+      <div class="choices" id="choices"></div>
+      ${extraHtml}
+      <div class="btns">
+        <button class="secondary" id="back">Voltar</button>
+        <button id="next">Continuar</button>
+      </div>
+    `;
+    const c = screen.querySelector("#choices");
+    options.forEach(opt => {
+      const div = document.createElement("div");
+      div.className = "choice" + (multi ? (selected.includes(opt) ? " selected" : "") : (selected===opt ? " selected" : ""));
+      div.textContent = opt;
+      div.onclick = () => onSelect(opt);
+      c.appendChild(div);
+    });
+    screen.querySelector("#back").onclick = back;
+  }
+
+  function renderText({title, subtitle, value, placeholder, onSave, showBack=true}) {
+    screen.innerHTML = `
+      <h2>${title}</h2>
+      <p class="small">${subtitle||""}</p>
+      <textarea id="txt" placeholder="${escapeHtml(placeholder||"")}">${escapeHtml(value||"")}</textarea>
+      <div class="btns">
+        ${showBack ? `<button class="secondary" id="back">Voltar</button>` : ``}
+        <button id="next">Continuar</button>
+      </div>
+    `;
+    if (showBack) screen.querySelector("#back").onclick = back;
+    screen.querySelector("#next").onclick = () => {
+      onSave(screen.querySelector("#txt").value.trim());
+      next();
+    };
+  }
+
+  function render() {
+    setProgress();
+    if (state.step === 0) return renderIntro();
+
+    if (state.step === 1) {
+      const options = ["Pesquisar informações","Fazer trabalhos escolares","Assistir videoaulas","Produzir conteúdo",
+        "Jogar jogos digitais","Usar redes sociais","Comunicar com amigos e família","Outra"];
+      renderChoices({
+        title:"Missão 1/11 — O que você mais gosta de fazer com tecnologias digitais?",
+        subtitle:"Escolha uma opção.",
+        options,
+        selected: state.Q1_atividade,
+        onSelect:(opt)=>{ state.Q1_atividade=opt; render(); },
+        extraHtml: state.Q1_atividade==="Outra"
+          ? `<div style="margin-top:10px"><label>Qual?</label><input id="q1outro" value="${escapeHtml(state.Q1_outro)}"/></div>`
+          : ``
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q1_atividade) return alert("Escolha uma opção.");
+        state.Q1_outro = state.Q1_atividade==="Outra" ? (screen.querySelector("#q1outro")?.value.trim() || "") : "";
+        award({coins:10, xp:5});
+        next();
+      };
+      return;
+    }
+
+    if (state.step === 2) {
+      const options = ["WhatsApp","Instagram","Facebook","YouTube","TikTok","Google","ChatGPT","Jogo digital","Outro"];
+      const onSelect = (opt) => {
+        const arr = state.Q2_escolhas.slice();
+        if (arr.includes(opt)) state.Q2_escolhas = arr.filter(x=>x!==opt);
+        else { if (arr.length>=3) return; arr.push(opt); state.Q2_escolhas = arr; }
+        render();
+      };
+      renderChoices({
+        title:"Missão 2/11 — Quais aplicativos você mais utiliza? (até 3)",
+        subtitle:"Marque até 3 opções.",
+        options, selected: state.Q2_escolhas, multi:true, limit:3, onSelect,
+        extraHtml: `
+          <div style="margin-top:10px">
+            <div class="small">Se marcou <b>Jogo digital</b>, qual?</div>
+            <input id="q2jogo" value="${escapeHtml(state.Q2_jogo_qual)}" placeholder="Ex.: Minecraft..."/>
+          </div>
+          <div style="margin-top:10px">
+            <div class="small">Se marcou <b>Outro</b>, qual?</div>
+            <input id="q2outro" value="${escapeHtml(state.Q2_outro)}" placeholder="Digite..."/>
+          </div>`
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (state.Q2_escolhas.length===0) return alert("Marque pelo menos 1 opção.");
+        state.Q2_jogo_qual = screen.querySelector("#q2jogo").value.trim();
+        state.Q2_outro = screen.querySelector("#q2outro").value.trim();
+        award({coins:10, xp:5});
+        next();
+      };
+      return;
+    }
+
+    if (state.step === 3) {
+      const options = ["Sim","Não"];
+      renderChoices({
+        title:"Missão 3/11 — Você utiliza tecnologia (celular/computador) para estudar?",
+        subtitle:"Escolha uma opção.",
+        options, selected: state.Q3_usa_estudar,
+        onSelect:(opt)=>{ state.Q3_usa_estudar=opt; render(); }
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q3_usa_estudar) return alert("Escolha Sim ou Não.");
+        award({coins:10, xp:5});
+        if (state.Q3_usa_estudar==="Sim") {
+          renderText({
+            title:"Missão 3.1 — Dê um exemplo",
+            subtitle:"Uma frase curta.",
+            value: state.Q3_1_exemplo,
+            placeholder:"Ex.: Assisto videoaulas e faço resumo…",
+            onSave:(txt)=>{ state.Q3_1_exemplo=txt; award({coins:5, xp:10}); }
+          });
+          screen.querySelector("#back").onclick = () => { state.step=3; render(); };
+          return;
+        }
+        next();
+      };
+      return;
+    }
+
+    if (state.step === 4) {
+      const options = ["Sozinho(a) explorando","Com amigos/colegas","Com professores","Com familiares","Cursos/Oficinas","Outra"];
+      renderChoices({
+        title:"Missão 4/11 — Como você aprendeu a usar tecnologias digitais?",
+        subtitle:"Escolha uma opção.",
+        options, selected: state.Q4_como_aprendeu,
+        onSelect:(opt)=>{ state.Q4_como_aprendeu=opt; render(); }
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q4_como_aprendeu) return alert("Escolha uma opção.");
+        award({coins:10, xp:5}); next();
+      };
+      return;
+    }
+
+    if (state.step === 5) {
+      const options = ["Google/Buscadores","YouTube","Redes sociais","Sites confiáveis (instituições)","Professores","Amigos/colegas","Outra"];
+      renderChoices({
+        title:"Missão 5/11 — Quando precisa de informação, onde você busca primeiro?",
+        subtitle:"Escolha uma opção.",
+        options, selected: state.Q5_onde_busca,
+        onSelect:(opt)=>{ state.Q5_onde_busca=opt; render(); }
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q5_onde_busca) return alert("Escolha uma opção.");
+        award({coins:10, xp:5}); next();
+      };
+      return;
+    }
+
+    if (state.step === 6) {
+      const options = [
+        "1 — Quase nunca verifico","2 — Verifico às vezes","3 — Verifico com frequência",
+        "4 — Verifico e comparo fontes","5 — Sou bem criterioso(a) (comparação + checagem)"
+      ];
+      renderChoices({
+        title:"Missão 6/11 — Como você verifica se uma informação é confiável?",
+        subtitle:"Escolha o nível.",
+        options, selected: state.Q6_verifica_info,
+        onSelect:(opt)=>{ state.Q6_verifica_info=opt; render(); }
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q6_verifica_info) return alert("Escolha um nível.");
+        award({coins:10, xp:10, badge:"Detetive da Internet"}); next();
+      };
+      return;
+    }
+
+    if (state.step === 7) {
+      const options = ["Sim","Não"];
+      renderChoices({
+        title:"Missão 7/11 — Você já usou IA (ex.: ChatGPT) para atividade escolar?",
+        subtitle:"Escolha uma opção.",
+        options, selected: state.Q7_usou_IA,
+        onSelect:(opt)=>{ state.Q7_usou_IA=opt; render(); }
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q7_usou_IA) return alert("Escolha Sim ou Não.");
+        award({coins:10, xp:5});
+        if (state.Q7_usou_IA==="Sim") {
+          renderText({
+            title:"Missão 7.1 — Conte como foi",
+            subtitle:"O que você fez? Ajudou?",
+            value: state.Q7_1_experiencia,
+            placeholder:"Ex.: Usei para entender um tema…",
+            onSave:(txt)=>{ state.Q7_1_experiencia=txt; award({coins:5, xp:15, badge:"Explorador de IA"}); }
+          });
+          screen.querySelector("#back").onclick = () => { state.step=7; render(); };
+          return;
+        }
+        next();
+      };
+      return;
+    }
+
+    if (state.step === 8) {
+      const options = ["Sim, atende bem","Atende parcialmente","Não atende","Não sei avaliar"];
+      renderChoices({
+        title:"Missão 8/11 — A estrutura tecnológica do IFAC ajuda você a aprender?",
+        subtitle:"Escolha uma opção.",
+        options, selected: state.Q8_estrutura_IFAC,
+        onSelect:(opt)=>{ state.Q8_estrutura_IFAC=opt; render(); }
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q8_estrutura_IFAC) return alert("Escolha uma opção.");
+        award({coins:10, xp:5}); next();
+      };
+      return;
+    }
+
+    if (state.step === 9) {
+      const options = ["Sim","Não","Às vezes"];
+      renderChoices({
+        title:"Missão 9/11 — Professores incentivam tecnologias digitais nas aulas?",
+        subtitle:"Escolha uma opção.",
+        options, selected: state.Q9_prof_incentiva,
+        onSelect:(opt)=>{ state.Q9_prof_incentiva=opt; render(); }
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q9_prof_incentiva) return alert("Escolha uma opção.");
+        award({coins:10, xp:5});
+        if (state.Q9_prof_incentiva!=="Não") {
+          renderText({
+            title:"Missão 9.1 — Dê um exemplo",
+            subtitle:"Pode ser ferramenta, plataforma, atividade…",
+            value: state.Q9_1_exemplo,
+            placeholder:"Ex.: Usamos vídeos, formulários…",
+            onSave:(txt)=>{ state.Q9_1_exemplo=txt; award({coins:5, xp:10}); }
+          });
+          screen.querySelector("#back").onclick = () => { state.step=9; render(); };
+          return;
+        }
+        next();
+      };
+      return;
+    }
+
+    if (state.step === 10) {
+      const options = ["Falta de internet/dados","Falta de computador/celular adequado","Dificuldade em encontrar informação confiável",
+        "Dificuldade em usar ferramentas/plataformas","Falta de tempo/organização","Outra"];
+      renderChoices({
+        title:"Missão 10/11 — Maior dificuldade ao usar tecnologia para aprender?",
+        subtitle:"Escolha uma opção.",
+        options, selected: state.Q10_dificuldade,
+        onSelect:(opt)=>{ state.Q10_dificuldade=opt; render(); },
+        extraHtml: state.Q10_dificuldade==="Outra"
+          ? `<div style="margin-top:10px"><div class="small">Qual?</div><input id="q10outra" value="${escapeHtml(state.Q10_outra)}"/></div>`
+          : ``
+      });
+      screen.querySelector("#next").onclick = () => {
+        if (!state.Q10_dificuldade) return alert("Escolha uma opção.");
+        state.Q10_outra = state.Q10_dificuldade==="Outra" ? (screen.querySelector("#q10outra")?.value.trim() || "") : "";
+        award({coins:10, xp:10}); next();
+      };
+      return;
+    }
+
+    if (state.step === 11) {
+      const options = ["Pesquisar melhor na internet","Verificar se a informação é confiável","Produzir conteúdos (texto, vídeo, apresentação)",
+        "Organizar estudos com apps","Usar IA de forma ética para aprender","Outra"];
+      renderChoices({
+        title:"Missão 11/11 — Que habilidade digital você gostaria de desenvolver?",
+        subtitle:"Escolha uma opção.",
+        options, selected: state.Q11_habilidade,
+        onSelect:(opt)=>{ state.Q11_habilidade=opt; render(); },
+        extraHtml: state.Q11_habilidade==="Outra"
+          ? `<div style="margin-top:10px"><div class="small">Qual?</div><input id="q11outra" value="${escapeHtml(state.Q11_outra)}"/></div>`
+          : ``
+      });
+
+      screen.querySelector("#next").onclick = async () => {
+        if (!state.Q11_habilidade) return alert("Escolha uma opção.");
+        state.Q11_outra = state.Q11_habilidade==="Outra" ? (screen.querySelector("#q11outra")?.value.trim() || "") : "";
+        award({coins:15, xp:20, badge:"Explorador Digital"});
+
+        const payload = {
+          timestamp_inicio: state.startedAt,
+          timestamp_fim: new Date().toISOString(),
+          device: state.device,
+          nome: state.nome, matricula: state.matricula, curso: state.curso,
+          Q1_atividade: state.Q1_atividade, Q1_outro: state.Q1_outro,
+          Q2_escolhas: state.Q2_escolhas, Q2_outro: state.Q2_outro, Q2_jogo_qual: state.Q2_jogo_qual,
+          Q3_usa_estudar: state.Q3_usa_estudar, Q3_1_exemplo: state.Q3_1_exemplo,
+          Q4_como_aprendeu: state.Q4_como_aprendeu,
+          Q5_onde_busca: state.Q5_onde_busca,
+          Q6_verifica_info: state.Q6_verifica_info,
+          Q7_usou_IA: state.Q7_usou_IA, Q7_1_experiencia: state.Q7_1_experiencia,
+          Q8_estrutura_IFAC: state.Q8_estrutura_IFAC,
+          Q9_prof_incentiva: state.Q9_prof_incentiva, Q9_1_exemplo: state.Q9_1_exemplo,
+          Q10_dificuldade: state.Q10_dificuldade, Q10_outra: state.Q10_outra,
+          Q11_habilidade: state.Q11_habilidade, Q11_outra: state.Q11_outra,
+          moedas_total: state.coins, xp_total: state.xp, badges: state.badges
+        };
+
+        screen.innerHTML = `<h2>Enviando suas respostas…</h2><p class="small">Aguarde.</p>`;
+
+        try {
+          const resp = await fetch(WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type":"text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          });
+          const json = await resp.json();
+          if (!json.ok) throw new Error(json.error || "Falha ao salvar.");
+
+          screen.innerHTML = `
+            <h1>Concluído! ✅</h1>
+            <p>Obrigado por participar.</p>
+            <div class="divider"></div>
+            <div class="tag">🪙 Moedas: <b>${state.coins}</b></div>
+            <div class="tag">⚡ XP: <b>${state.xp}</b></div>
+            <div class="divider"></div>
+            <h2>Badges</h2>
+            <p class="small">${state.badges.map(b=>`🏅 ${escapeHtml(b)}`).join("<br>")}</p>
+            <div class="btns"><button onclick="location.reload()">Sair</button></div>
+          `;
+        } catch (e) {
+          screen.innerHTML = `
+            <h2>Não consegui salvar 😕</h2>
+            <p class="small">Erro: ${escapeHtml(String(e))}</p>
+            <div class="btns"><button onclick="location.reload()">Recomeçar</button></div>
+          `;
+        }
+      };
+      return;
+    }
+  }
+
+  setProgress();
+  render();
+</script>
+</body>
+</html>

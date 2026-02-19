@@ -124,7 +124,13 @@
         <option ${sel("Técnico em Alimentos")}>Técnico em Alimentos</option>
         <option ${sel("Técnico em Biotecnologia")}>Técnico em Biotecnologia</option>
       </select>
-      <div class="btns"><button id="startBtn">Começar</button></div>
+      <div style="margin-top:12px">
+  <label class="small">
+    <input type="checkbox" id="consentimento"/>
+    Li e concordo em participar da pesquisa.
+  </label>
+</div>
+      <button id="startBtn" disabled>Começar</button>
       <div class="toast small">Dica: você ganha moedas só por participar 🙂</div>
     `;
     el("startBtn").onclick = () => {
@@ -138,6 +144,12 @@
       award({coins: 15, xp: 10, badge:"Cadastro concluído"});
       next();
     };
+    const chk = screen.querySelector("#consentimento");
+    const btn = screen.querySelector("#startBtn");
+
+chk.addEventListener("change", () => {
+  btn.disabled = !chk.checked;
+});
   }
 
   function renderChoices({title, subtitle, options, selected, multi=false, limit=null, onSelect, extraHtml=""}) {
@@ -452,8 +464,12 @@
           if (!json.ok) throw new Error(json.error || "Falha ao salvar.");
 
           screen.innerHTML = `
-            <h1>Concluído! ✅</h1>
-            <p>Obrigado por participar.</p>
+            <h1>Missão concluída! ✅</h1>
+<p>
+  Obrigado por participar.<br>
+  Suas respostas vão contribuir para melhorar o uso de tecnologias digitais
+  nas aulas do IFAC.
+</p>
             <div class="divider"></div>
             <div class="tag">🪙 Moedas: <b>${state.coins}</b></div>
             <div class="tag">⚡ XP: <b>${state.xp}</b></div>

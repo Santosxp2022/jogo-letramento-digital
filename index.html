@@ -53,9 +53,7 @@
 </div>
 
 <script>
-  const WEB_APP_URL = "....";
-  let alunosCache = [];     // lista carregada do curso selecionado
-let alunoSelecionado = null;
+ 
   async function carregarAlunosPorCurso(curso) {
   // monta a URL: /exec?fn=alunos&curso=...
   const url = `${WEB_APP_URL}?fn=alunos&curso=${encodeURIComponent(curso)}`;

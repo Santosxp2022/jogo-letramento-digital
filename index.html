@@ -183,9 +183,9 @@ cursoSel.addEventListener("change", async () => {
   try {
     const alunos = await carregarAlunosPorCurso(curso);
     // preenche datalist
-    lista.innerHTML = alunos
-      .map(a => `<option value="${a.nome} — ${a.matricula}"></option>`)
-      .join("");
+   lista.innerHTML = alunosCache
+  .map(a => `<option value="${a.nome}"></option>`)
+  .join("");
 
     nomeBusca.disabled = false;
     nomeBusca.placeholder = "Digite parte do nome (ex.: ana)";
@@ -197,21 +197,22 @@ cursoSel.addEventListener("change", async () => {
 
 // Quando digitar/selecionar: verifica se bate com algum aluno
 nomeBusca.addEventListener("input", () => {
-  const val = nomeBusca.value.trim();
-  const parts = val.split("—").map(s => s.trim());
-  if (parts.length === 2) {
-    const nome = parts[0];
-    const mat = parts[1];
-    const ok = alunosCache.find(a => a.nome === nome && a.matricula === mat);
-    if (ok) {
-      state.nome = ok.nome;
-      state.matricula = ok.matricula;
-      matriculaInput.value = state.matricula;
-    }
+  const nomeDigitado = nomeBusca.value.trim();
+
+  const aluno = alunosCache.find(a => a.nome === nomeDigitado);
+
+  if (aluno) {
+    state.nome = aluno.nome;
+    state.matricula = aluno.matricula;
+    matriculaInput.value = state.matricula;
+  } else {
+    state.nome = "";
+    state.matricula = "";
+    matriculaInput.value = "";
   }
+
   atualizarBotao();
 });
-
 // Se tiver consentimento, controla o botão também
 if (consent) {
   consent.addEventListener("change", atualizarBotao);

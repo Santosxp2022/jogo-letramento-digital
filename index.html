@@ -116,38 +116,120 @@ let alunoSelecionado = null;
 
   function renderIntro() {
     screen.innerHTML = `
-      <h1>Missões do Letramento Digital</h1>
-      <p>Esta é uma entrevista em formato de jogo. Não há respostas certas ou erradas. Responda com sinceridade.</p>
-      <p class="small">As respostas serão usadas apenas para fins acadêmicos e tratadas com confidencialidade.</p>
-      <div class="divider"></div>
-      <h2>Cadastro</h2>
-      <div class="row">
-        <div class="col">
-          <label>Nome</label>
-          <input id="nome" placeholder="Seu nome completo" value="${escapeHtml(state.nome)}"/>
-        </div>
-        <div class="col">
-          <label>Matrícula</label>
-          <input id="matricula" placeholder="Ex.: 2024AGRO01" />
-        </div>
-      </div>
-      <div style="height:10px"></div>
-      <label>Curso</label>
-      <select id="curso">
-        <option value="">Selecione...</option>
-        <option ${sel("Técnico em Agropecuária")}>Técnico em Agropecuária</option>
-        <option ${sel("Técnico em Alimentos")}>Técnico em Alimentos</option>
-        <option ${sel("Técnico em Biotecnologia")}>Técnico em Biotecnologia</option>
-      </select>
-      <div style="margin-top:12px">
-  <label class="small">
-    <input type="checkbox" id="consentimento"/>
-    Li e concordo em participar da pesquisa.
-  </label>
-</div>
-      <button id="startBtn" disabled>Começar</button>
-      <div class="toast small">Dica: você ganha moedas só por participar 🙂</div>
-    `;
+  <h1>Missões do Letramento Digital</h1>
+  <p>Esta é uma entrevista em formato de jogo. Não há respostas certas ou erradas. Responda com sinceridade.</p>
+  <p class="small">As respostas serão usadas apenas para fins acadêmicos e tratadas com confidencialidade.</p>
+  <div class="divider"></div>
+
+  <h2>Cadastro</h2>
+
+  <label>Curso</label>
+  <select id="curso">
+    <option value="">Selecione...</option>
+    <option ${sel("Técnico em Agropecuária")}>Técnico em Agropecuária</option>
+    <option ${sel("Técnico em Alimentos")}>Técnico em Alimentos</option>
+    <option ${sel("Técnico em Biotecnologia")}>Técnico em Biotecnologia</option>
+  </select>
+
+  <div style="height:10px"></div>
+
+  <label>Digite seu nome (aparece uma lista para selecionar)</label>
+  <input id="nomeBusca" placeholder="Ex.: ana clara" list="listaAlunos" disabled />
+
+  <datalist id="listaAlunos"></datalist>
+
+  <div style="height:10px"></div>
+
+  <label>Matrícula (automática)</label>
+  <input id="matricula" placeholder="Selecione seu nome acima" disabled value="${escapeHtml(state.matricula)}"/>
+
+  <div class="btns"><button id="startBtn" disabled>Começar</button></div>
+
+  <div class="toast small">
+    Dica: primeiro selecione o curso, depois digite parte do seu nome e escolha na lista.
+  </div>
+`;
+    // Elementos da tela
+const cursoSel = screen.querySelector("#curso");
+const nomeBusca = screen.querySelector("#nomeBusca");
+const lista = screen.querySelector("#listaAlunos");
+const matriculaInput = screen.querySelector("#matricula");
+const startBtn = screen.querySelector("#startBtn");
+const consent = screen.querySelector("#consentimento"); // se você manteve o consentimento
+
+function atualizarBotao() {
+  const cursoOk = !!cursoSel.value;
+  const alunoOk = !!state.nome && !!state.matricula;
+  const consentOk = consent ? consent.checked : true;
+  startBtn.disabled = !(cursoOk && alunoOk && consentOk);
+}
+
+// Quando escolher o curso: carrega a lista
+cursoSel.addEventListener("change", async () => {
+  const curso = cursoSel.value;
+  // limpa seleção anterior
+  state.nome = "";
+  state.matricula = "";
+  nomeBusca.value = "";
+  matriculaInput.value = "";
+  lista.innerHTML = "";
+  nomeBusca.disabled = true;
+  atualizarBotao();
+
+  if (!curso) return;
+
+  // feedback simples
+  nomeBusca.placeholder = "Carregando lista...";
+  try {
+    const alunos = await carregarAlunosPorCurso(curso);
+    // preenche datalist
+    lista.innerHTML = alunos
+      .map(a => `<option value="${a.nome} — ${a.matricula}"></option>`)
+      .join("");
+
+    nomeBusca.disabled = false;
+    nomeBusca.placeholder = "Digite parte do nome (ex.: ana)";
+  } catch (e) {
+    nomeBusca.placeholder = "Erro ao carregar alunos. Tente novamente.";
+    console.error(e);
+  }
+});
+
+// Quando digitar/selecionar: verifica se bate com algum aluno
+nomeBusca.addEventListener("input", () => {
+  const val = nomeBusca.value.trim();
+  const parts = val.split("—").map(s => s.trim());
+  if (parts.length === 2) {
+    const nome = parts[0];
+    const mat = parts[1];
+    const ok = alunosCache.find(a => a.nome === nome && a.matricula === mat);
+    if (ok) {
+      state.nome = ok.nome;
+      state.matricula = ok.matricula;
+      matriculaInput.value = state.matricula;
+    }
+  }
+  atualizarBotao();
+});
+
+// Se tiver consentimento, controla o botão também
+if (consent) {
+  consent.addEventListener("change", atualizarBotao);
+}
+
+// Clique em começar
+startBtn.addEventListener("click", () => {
+  if (!cursoSel.value) return alert("Selecione o curso.");
+  if (!state.nome || !state.matricula) return alert("Digite seu nome e selecione na lista.");
+  if (consent && !consent.checked) return alert("Marque o consentimento para continuar.");
+
+  state.curso = cursoSel.value;
+  award({ coins: 15, xp: 10, badge: "Cadastro concluído" });
+  next();
+});
+
+// Inicial (se já tiver curso salvo, carrega)
+atualizarBotao();
     el("startBtn").onclick = () => {
       const nome = screen.querySelector("#nome").value.trim();
       const matricula = screen.querySelector("#matricula").value.trim();

@@ -69,8 +69,10 @@ let alunoSelecionado = null;
   return alunosCache;
 }
   // COLE A URL DO SEU WEB APP AQUI (termina com /exec)
-  const WEB_APP_URL = "Chttps://script.google.com/macros/s/AKfycbxARY1fXLVQluNNEAGd3JzFNo1zIaQfFLbRhDKxjm_Ko8nBwxCz62bEme2uQmY4cWFidw/exec";
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjNyAhaA0USNhwdLfJ_c7PD0IY9FZ-ej24f4lvDDchOjhIPj_A4hQFKFYPdFIkYjvy/exec";
 
+let alunosCache = [];
+let alunoSelecionado = null;
   const state = {
     startedAt: new Date().toISOString(),
     coins: 0, xp: 0, badges: [],

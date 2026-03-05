@@ -61,8 +61,8 @@
   const json = await resp.json();
 
   // Alguns scripts retornam { alunos: [...] } e outros { ok:true, alunos:[...] }.
-  const lista = json.alunos || (json.ok ? json.alunos : null) || [];
-  alunosCache = lista;
+  
+ 
   alunoSelecionado = null;
   return alunosCache;
 }
@@ -132,11 +132,10 @@ let alunoSelecionado = null;
   </select>
 
   <div style="height:10px"></div>
+  
+  <input id="nomeBusca" placeholder="Digite pelo menos 2 letras (ex.: ana)" disabled />
+<div id="sugestoes" style="margin-top:10px"></div>
 
-  <label>Digite seu nome (aparece uma lista para selecionar)</label>
-  <input id="nomeBusca" placeholder="Ex.: ana clara" list="listaAlunos" disabled />
-
-  <datalist id="listaAlunos"></datalist>
 
   <div style="height:10px"></div>
 
@@ -146,16 +145,16 @@ let alunoSelecionado = null;
   <div class="btns"><button id="startBtn" disabled>Começar</button></div>
 
   <div class="toast small">
-    Dica: primeiro selecione o curso, depois digite parte do seu nome e escolha na lista.
-  </div>
-`;
+    
     // Elementos da tela
 const cursoSel = screen.querySelector("#curso");
 const nomeBusca = screen.querySelector("#nomeBusca");
-const lista = screen.querySelector("#listaAlunos");
+const sugestoes = screen.querySelector("#sugestoes");
 const matriculaInput = screen.querySelector("#matricula");
 const startBtn = screen.querySelector("#startBtn");
-const consent = screen.querySelector("#consentimento"); // se você manteve o consentimento
+const consent = screen.querySelector("#consentimento");
+
+    // se você manteve o consentimento
 
 function atualizarBotao() {
   const cursoOk = !!cursoSel.value;
@@ -166,28 +165,23 @@ function atualizarBotao() {
 
 // Quando escolher o curso: carrega a lista
 cursoSel.addEventListener("change", async () => {
+sugestoes.innerHTML = "";
   const curso = cursoSel.value;
   // limpa seleção anterior
   state.nome = "";
   state.matricula = "";
   nomeBusca.value = "";
   matriculaInput.value = "";
-  lista.innerHTML = "";
   nomeBusca.disabled = true;
   atualizarBotao();
 
   if (!curso) return;
 
-  // feedback simples
-  nomeBusca.placeholder = "Carregando lista...";
+
   try {
     const alunos = await carregarAlunosPorCurso(curso);
-    // preenche datalist
-   lista.innerHTML = alunosCache
-  .map(a => `<option value="${a.nome}"></option>`)
-  .join("");
-
-    nomeBusca.disabled = false;
+  
+        nomeBusca.disabled = false;
     nomeBusca.placeholder = "Digite parte do nome (ex.: ana)";
   } catch (e) {
     nomeBusca.placeholder = "Erro ao carregar alunos. Tente novamente.";
@@ -196,32 +190,67 @@ cursoSel.addEventListener("change", async () => {
 });
 
 // Quando digitar/selecionar: verifica se bate com algum aluno
+function normTxt(s) {
+  return String(s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
 nomeBusca.addEventListener("input", () => {
-  const nomeDigitado = nomeBusca.value.trim();
+  const q = normTxt(nomeBusca.value);
 
-  const aluno = alunosCache.find(a => a.nome === nomeDigitado);
+  // limpa seleção anterior ao digitar
+  state.nome = "";
+  state.matricula = "";
+  matriculaInput.value = "";
+  sugestoes.innerHTML = "";
 
-  if (aluno) {
-    state.nome = aluno.nome;
-    state.matricula = aluno.matricula;
-    matriculaInput.value = state.matricula;
-  } else {
-    state.nome = "";
-    state.matricula = "";
-    matriculaInput.value = "";
+  if (q.length < 2) {
+    atualizarBotao();
+    return;
   }
+
+  const results = alunosCache
+    .filter(a => normTxt(a.nome).includes(q))
+    .slice(0, 12);
+
+  results.forEach(a => {
+    const item = document.createElement("div");
+    item.textContent = a.nome;
+    item.style.padding = "10px";
+    item.style.border = "1px solid rgba(255,255,255,.12)";
+    item.style.borderRadius = "10px";
+    item.style.marginTop = "8px";
+    item.style.cursor = "pointer";
+    item.style.background = "rgba(255,255,255,.04)";
+
+    item.onclick = () => {
+      state.nome = a.nome;
+      state.matricula = a.matricula;
+      matriculaInput.value = state.matricula;
+
+      // mostra só o selecionado
+      sugestoes.innerHTML = "";
+      const sel = document.createElement("div");
+      sel.textContent = a.nome;
+      sel.style.padding = "10px";
+      sel.style.borderRadius = "10px";
+      sel.style.background = "rgba(255,255,255,.08)";
+      sugestoes.appendChild(sel);
+
+      atualizarBotao();
+    };
+
+    sugestoes.appendChild(item);
+  });
 
   atualizarBotao();
 });
-// Se tiver consentimento, controla o botão também
-if (consent) {
-  consent.addEventListener("change", atualizarBotao);
-}
-
 // Clique em começar
 startBtn.addEventListener("click", () => {
   if (!cursoSel.value) return alert("Selecione o curso.");
-  if (!state.nome || !state.matricula) return alert("Digite seu nome e selecione na lista.");
   if (consent && !consent.checked) return alert("Marque o consentimento para continuar.");
 
   state.curso = cursoSel.value;
@@ -294,7 +323,7 @@ chk.addEventListener("change", () => {
   function render() {
     setProgress();
     if (state.step === 0) return renderIntro();
-
+    const sugestoes = screen.querySelector("#sugestoes");
     if (state.step === 1) {
       const options = ["Pesquisar informações","Fazer trabalhos escolares","Assistir videoaulas","Produzir conteúdo",
         "Jogar jogos digitais","Usar redes sociais","Comunicar com amigos e família","Outra"];

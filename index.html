@@ -53,6 +53,21 @@
 </div>
 
 <script>
+  const WEB_APP_URL = "....";
+  let alunosCache = [];     // lista carregada do curso selecionado
+let alunoSelecionado = null;
+  async function carregarAlunosPorCurso(curso) {
+  // monta a URL: /exec?fn=alunos&curso=...
+  const url = `${WEB_APP_URL}?fn=alunos&curso=${encodeURIComponent(curso)}`;
+  const resp = await fetch(url, { method: "GET" });
+  const json = await resp.json();
+
+  // Alguns scripts retornam { alunos: [...] } e outros { ok:true, alunos:[...] }.
+  const lista = json.alunos || (json.ok ? json.alunos : null) || [];
+  alunosCache = lista;
+  alunoSelecionado = null;
+  return alunosCache;
+}
   // COLE A URL DO SEU WEB APP AQUI (termina com /exec)
   const WEB_APP_URL = "Chttps://script.google.com/macros/s/AKfycbxARY1fXLVQluNNEAGd3JzFNo1zIaQfFLbRhDKxjm_Ko8nBwxCz62bEme2uQmY4cWFidw/exec";
 

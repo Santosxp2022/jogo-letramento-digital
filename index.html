@@ -161,14 +161,45 @@
   const el = (id) => document.getElementById(id);
   const screen = el("screen");
 
+  function showReward(text){
+  const div = document.createElement("div");
+
+  div.style.position = "fixed";
+  div.style.top = "20px";
+  div.style.right = "20px";
+  div.style.background = "#7c5cff";
+  div.style.padding = "12px 18px";
+  div.style.borderRadius = "10px";
+  div.style.fontWeight = "bold";
+  div.style.boxShadow = "0 6px 20px rgba(0,0,0,.3)";
+  div.style.zIndex = "9999";
+  div.innerText = text;
+
+  document.body.appendChild(div);
+
+  setTimeout(() => {
+    div.remove();
+  }, 1800);
+}
+  
   function award({coins=10, xp=0, badge=null} = {}) {
-    state.coins += coins;
-    state.xp += xp;
-    if (badge && !state.badges.includes(badge)) state.badges.push(badge);
-    el("hudCoins").textContent = `🪙 Moedas: ${state.coins}`;
-    el("hudXP").textContent = `⚡ XP: ${state.xp}`;
+  state.coins += coins;
+  state.xp += xp;
+
+  if (badge && !state.badges.includes(badge)) {
+    state.badges.push(badge);
   }
 
+  el("hudCoins").textContent = `🪙 Moedas: ${state.coins}`;
+  el("hudXP").textContent = `⚡ XP: ${state.xp}`;
+
+  let msg = "";
+
+  if (coins) msg += `+${coins} moedas 🪙 `;
+  if (xp) msg += `+${xp} XP ⚡`;
+
+  if (msg) showReward(msg);
+}
   function setProgress() {
     el("hudStep").textContent = `Missão ${Math.max(0, state.step)}/11`;
     const pct = Math.min(100, (Math.max(0, state.step) / 11) * 100);

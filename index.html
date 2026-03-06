@@ -303,8 +303,20 @@
     screen.innerHTML = `
       <h1>Missões do Letramento Digital</h1>
       <p>Esta é uma entrevista em formato de jogo. Não há respostas certas ou erradas. Responda com sinceridade.</p>
-      <p class="small">As respostas serão usadas apenas para fins acadêmicos e tratadas com confidencialidade.</p>
-      <div class="divider"></div>
+      <div id="badgesWrap" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+  ${state.badges.map(b => `
+    <div style="
+      padding:10px 14px;
+      border-radius:12px;
+      background:rgba(124,92,255,0.18);
+      border:1px solid rgba(124,92,255,0.35);
+      font-size:14px;
+      font-weight:600;
+    ">
+      🏅 ${escapeHtml(b)}
+    </div>
+  `).join("")}
+</div>
 
       <h2>Cadastro</h2>
 
@@ -855,9 +867,26 @@
             <div class="tag">⚡ XP: <b>${state.xp}</b></div>
             <div class="divider"></div>
             <h2>Badges</h2>
-            <p class="small">${state.badges.map(b => `🏅 ${escapeHtml(b)}`).join("<br>")}</p>
-            <div class="btns"><button onclick="location.reload()">Sair</button></div>
-          `;
+${
+  state.badges.length
+    ? `
+      <div id="badgesWrap" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+        ${state.badges.map(b => `
+          <div style="
+            padding:10px 14px;
+            border-radius:12px;
+            background:rgba(124,92,255,0.18);
+            border:1px solid rgba(124,92,255,0.35);
+            font-size:14px;
+            font-weight:600;
+          ">
+            🏅 ${escapeHtml(b)}
+          </div>
+        `).join("")}
+      </div>
+    `
+    : `<p class="small">Nenhum badge conquistado.</p>`
+}
           showConfetti();
         } catch (e) {
           screen.innerHTML = `

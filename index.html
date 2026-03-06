@@ -5,111 +5,392 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Missões do Letramento Digital</title>
   <style>
-    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-    body { margin:0; background:#0b1020; color:#e8ecff; }
-    .wrap { max-width: 820px; margin: 0 auto; padding: 18px; }
-    .card {
-      background: rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    :root{
+      --bg-1:#071228;
+      --bg-2:#0a1630;
+      --panel:#141f3d;
+      --panel-2:#18264a;
+      --text:#eef3ff;
+      --muted:#b9c3e6;
+      --line:rgba(255,255,255,.12);
+      --primary:#7c5cff;
+      --primary-2:#9a84ff;
+      --success:#2dd4bf;
+      --warning:#fbbf24;
+      --danger:#fb7185;
+      --shadow:0 12px 30px rgba(0,0,0,.28);
+      --radius:18px;
     }
-    h1,h2 { margin: 0 0 10px; }
-    p { margin: 8px 0; color: rgba(232,236,255,0.88); line-height:1.35; }
-    .row { display:flex; gap:12px; flex-wrap:wrap; }
-    .col { flex:1 1 240px; }
-    label { display:block; font-size: 13px; opacity:0.9; margin-bottom:6px; }
-    input, select, textarea {
-      width:100%;
-      box-sizing:border-box;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.16);
-      background: rgba(0,0,0,0.25);
-      color:#e8ecff;
-      padding: 10px 12px;
-      outline:none;
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124,92,255,.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(45,212,191,.10), transparent 22%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      min-height:100vh;
     }
-    textarea { min-height: 90px; resize: vertical; }
-    .btns {
+
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:20px 16px 28px;
+    }
+
+    .topbar{
       display:flex;
-      gap:10px;
-      justify-content:flex-end;
-      margin-top: 12px;
       flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-bottom:12px;
     }
-    button {
-      border:0;
-      border-radius: 999px;
-      padding: 10px 14px;
-      cursor:pointer;
-      background: #7c5cff;
-      color:white;
-      font-weight: 650;
+
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+      font-weight:700;
     }
-    button.secondary { background: rgba(255,255,255,0.10); color:#e8ecff; }
-    button:disabled { opacity:0.5; cursor:not-allowed; }
-    .hud { display:flex; gap:12px; flex-wrap:wrap; margin-bottom: 12px; }
-    .pill {
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.12);
-    }
-    .progress {
-      height: 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.10);
+
+    .progress-wrap{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      height:12px;
+      border-radius:999px;
       overflow:hidden;
+      margin-bottom:18px;
     }
-    .bar {
+
+    .bar{
       height:100%;
       width:0%;
-      background:#7c5cff;
-      transition: width .25s ease;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--primary),var(--primary-2));
+      transition:width .3s ease;
+      box-shadow:0 0 18px rgba(124,92,255,.45);
     }
-    .toast {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(124,92,255,0.18);
-      border:1px solid rgba(124,92,255,0.35);
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.11);
+      border-radius:22px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      position:relative;
+      overflow:hidden;
     }
-    .choices { display:grid; gap: 10px; margin-top: 10px; }
-    .choice {
-      padding: 12px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,0.16);
-      background: rgba(0,0,0,0.25);
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(124,92,255,.12), transparent 22%),
+        radial-gradient(circle at 100% 0%, rgba(45,212,191,.08), transparent 20%);
+      pointer-events:none;
+    }
+
+    h1,h2,h3{
+      margin:0 0 10px;
+      line-height:1.15;
+      position:relative;
+      z-index:1;
+    }
+
+    h1{
+      font-size:clamp(2rem, 3.5vw, 3.2rem);
+      letter-spacing:-.03em;
+    }
+
+    h2{
+      font-size:clamp(1.35rem, 2.2vw, 2rem);
+    }
+
+    p{
+      margin:8px 0;
+      color:var(--muted);
+      line-height:1.5;
+      position:relative;
+      z-index:1;
+    }
+
+    .small{font-size:.92rem;color:var(--muted)}
+
+    .divider{
+      height:1px;
+      background:var(--line);
+      margin:14px 0 18px;
+    }
+
+    label{
+      display:block;
+      margin:0 0 8px;
+      font-size:.95rem;
+      color:#dbe5ff;
+      font-weight:600;
+    }
+
+    input, select, textarea{
+      width:100%;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(5,10,25,.35);
+      color:var(--text);
+      padding:14px 15px;
+      font-size:1rem;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:rgba(124,92,255,.75);
+      box-shadow:0 0 0 4px rgba(124,92,255,.18);
+    }
+
+    input:disabled{
+      opacity:.78;
+      cursor:not-allowed;
+    }
+
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    .btns{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top:14px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+
+    button{
+      border:0;
+      border-radius:999px;
+      padding:12px 18px;
+      font-weight:800;
+      font-size:.98rem;
       cursor:pointer;
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      color:#fff;
+      box-shadow:0 10px 24px rgba(124,92,255,.28);
+      transition:transform .14s ease, opacity .14s ease, filter .14s ease;
     }
-    .choice.selected {
-      outline: 2px solid rgba(124,92,255,0.9);
-      background: rgba(124,92,255,0.16);
+
+    button:hover{transform:translateY(-1px)}
+    button:active{transform:translateY(0)}
+    button:disabled{opacity:.48;cursor:not-allowed}
+    .secondary{
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      box-shadow:none;
+      border:1px solid rgba(255,255,255,.12);
     }
-    .small { font-size: 12px; opacity:0.85; }
-    .divider { height:1px; background: rgba(255,255,255,0.10); margin: 14px 0; }
-    .tag {
-      display:inline-block;
-      margin: 6px 6px 0 0;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.12);
-      font-size: 12px;
+
+    .hero-badges{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:12px 0 0;
+    }
+
+    .mini-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(124,92,255,.14);
+      border:1px solid rgba(124,92,255,.28);
+      font-size:.9rem;
+      font-weight:700;
+      color:#f0ebff;
+    }
+
+    .choices{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+      position:relative;
+      z-index:1;
+    }
+
+    .choice{
+      padding:13px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      cursor:pointer;
+      transition:transform .14s ease, border-color .14s ease, background .14s ease;
+      color:#edf2ff;
+    }
+
+    .choice:hover{
+      transform:translateY(-1px);
+      border-color:rgba(124,92,255,.55);
+      background:rgba(124,92,255,.08);
+    }
+
+    .choice.selected{
+      outline:2px solid rgba(124,92,255,.85);
+      background:rgba(124,92,255,.14);
+      border-color:rgba(124,92,255,.55);
+    }
+
+    .hint{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .toast{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(124,92,255,.16);
+      border:1px solid rgba(124,92,255,.28);
+      color:#ece8ff;
+    }
+
+    .result-cards{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:12px 0 8px;
+    }
+
+    .result-card{
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      min-width:130px;
+    }
+
+    .result-title{
+      font-size:.82rem;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    .result-value{
+      font-size:1.15rem;
+      font-weight:800;
+      color:#fff;
+    }
+
+    .badge-grid{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .badge-card{
+      padding:10px 14px;
+      border-radius:14px;
+      background:rgba(124,92,255,.16);
+      border:1px solid rgba(124,92,255,.30);
+      font-size:.95rem;
+      font-weight:700;
+      color:#f0ebff;
+    }
+
+    .reward-pop{
+      position:fixed;
+      top:18px;
+      right:18px;
+      z-index:9999;
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      color:#fff;
+      padding:12px 16px;
+      border-radius:14px;
+      box-shadow:0 12px 28px rgba(0,0,0,.28);
+      font-weight:800;
+      animation:rewardIn .24s ease;
+    }
+
+    @keyframes rewardIn{
+      from{transform:translateY(-8px);opacity:0}
+      to{transform:translateY(0);opacity:1}
+    }
+
+    .mission-pop{
+      position:fixed;
+      top:78px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:9998;
+      background:rgba(124,92,255,.96);
+      color:#fff;
+      padding:12px 18px;
+      border-radius:14px;
+      box-shadow:0 10px 24px rgba(0,0,0,.28);
+      font-weight:800;
+      animation:rewardIn .22s ease;
+      text-align:center;
+    }
+
+    .shine{
+      position:absolute;
+      width:180px;
+      height:180px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(255,255,255,.16), transparent 70%);
+      filter:blur(10px);
+      pointer-events:none;
+      opacity:.45;
+    }
+
+    .shine.s1{top:-60px;right:-40px}
+    .shine.s2{bottom:-60px;left:-30px}
+
+    @media (max-width:700px){
+      .wrap{padding:14px}
+      .card{padding:15px}
+      .result-card{min-width:unset;flex:1 1 45%}
+      .reward-pop{
+        left:12px;
+        right:12px;
+        top:12px;
+      }
+      .mission-pop{
+        left:12px;
+        right:12px;
+        transform:none;
+      }
     }
   </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="hud">
+  <div class="topbar">
     <div class="pill" id="hudStep">Missão 0/11</div>
     <div class="pill" id="hudCoins">🪙 Moedas: 0</div>
     <div class="pill" id="hudXP">⚡ XP: 0</div>
   </div>
-  <div class="progress"><div class="bar" id="bar"></div></div>
-  <div style="height:12px"></div>
-  <div class="card" id="screen"></div>
+
+  <div class="progress-wrap">
+    <div class="bar" id="bar"></div>
+  </div>
+
+  <div class="card" id="screen">
+    <div class="shine s1"></div>
+    <div class="shine s2"></div>
+  </div>
 </div>
 
 <script>
@@ -161,122 +442,6 @@
   const el = (id) => document.getElementById(id);
   const screen = el("screen");
 
-  function showReward(text){
-  const div = document.createElement("div");
-
-  div.style.position = "fixed";
-  div.style.top = "20px";
-  div.style.right = "20px";
-  div.style.background = "#7c5cff";
-  div.style.padding = "12px 18px";
-  div.style.borderRadius = "10px";
-  div.style.fontWeight = "bold";
-  div.style.boxShadow = "0 6px 20px rgba(0,0,0,.3)";
-  div.style.zIndex = "9999";
-  div.innerText = text;
-
-  document.body.appendChild(div);
-
-  setTimeout(() => {
-    div.remove();
-  }, 1800);
-}
-  
-  function showConfetti() {
-  for (let i = 0; i < 80; i++) {
-    const conf = document.createElement("div");
-    conf.style.position = "fixed";
-    conf.style.top = "-10px";
-    conf.style.left = Math.random() * 100 + "vw";
-    conf.style.width = "8px";
-    conf.style.height = "14px";
-    conf.style.background = `hsl(${Math.random() * 360}, 90%, 60%)`;
-    conf.style.opacity = "0.9";
-    conf.style.transform = `rotate(${Math.random() * 360}deg)`;
-    conf.style.zIndex = "9999";
-    conf.style.pointerEvents = "none";
-    conf.style.borderRadius = "2px";
-
-    document.body.appendChild(conf);
-
-    const duration = 1200 + Math.random() * 1200;
-    const drift = (Math.random() - 0.5) * 200;
-
-    conf.animate(
-      [
-        { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
-        { transform: `translate(${drift}px, 100vh) rotate(720deg)`, opacity: 0.2 }
-      ],
-      {
-        duration,
-        easing: "ease-out"
-      }
-    );
-
-    setTimeout(() => conf.remove(), duration);
-  }
-}
-
-  function showMissionMessage(text) {
-  const div = document.createElement("div");
-  div.style.position = "fixed";
-  div.style.top = "80px";
-  div.style.left = "50%";
-  div.style.transform = "translateX(-50%)";
-  div.style.background = "rgba(124,92,255,0.95)";
-  div.style.padding = "14px 20px";
-  div.style.borderRadius = "14px";
-  div.style.fontWeight = "bold";
-  div.style.boxShadow = "0 8px 24px rgba(0,0,0,.35)";
-  div.style.zIndex = "9999";
-  div.style.pointerEvents = "none";
-  div.innerText = text;
-
-  document.body.appendChild(div);
-
-  setTimeout(() => div.remove(), 1600);
-}
-  function award({coins=10, xp=0, badge=null} = {}) {
-  state.coins += coins;
-  state.xp += xp;
-
-  if (badge && !state.badges.includes(badge)) {
-    state.badges.push(badge);
-  }
-
-  el("hudCoins").textContent = `🪙 Moedas: ${state.coins}`;
-  el("hudXP").textContent = `⚡ XP: ${state.xp}`;
-
-  let msg = "";
-
-  if (coins) msg += `+${coins} moedas 🪙 `;
-  if (xp) msg += `+${xp} XP ⚡`;
-
-  if (msg) showReward(msg);
-}
-  function setProgress() {
-    el("hudStep").textContent = `Missão ${Math.max(0, state.step)}/11`;
-    const pct = Math.min(100, (Math.max(0, state.step) / 11) * 100);
-    el("bar").style.width = pct + "%";
-  }
-
-  function next() {
-  state.step++;
-  setProgress();
-
-  if (state.step >= 1 && state.step <= 11) {
-    showMissionMessage(`Nova missão desbloqueada: ${state.step}/11`);
-  }
-
-  render();
-}
-  
-  function back() {
-    state.step = Math.max(0, state.step - 1);
-    setProgress();
-    render();
-  }
-
   function escapeHtml(s) {
     return (s || "").replace(/[&<>"']/g, m => ({
       "&": "&amp;",
@@ -287,10 +452,6 @@
     }[m]));
   }
 
-  function sel(v) {
-    return state.curso === v ? "selected" : "";
-  }
-
   function normTxt(s) {
     return String(s || "")
       .toLowerCase()
@@ -299,12 +460,117 @@
       .trim();
   }
 
+  function sel(v) {
+    return state.curso === v ? "selected" : "";
+  }
+
+  function setProgress() {
+    el("hudStep").textContent = `Missão ${Math.max(0, state.step)}/11`;
+    const pct = Math.min(100, (Math.max(0, state.step) / 11) * 100);
+    el("bar").style.width = pct + "%";
+  }
+
+  function showReward(text) {
+    const div = document.createElement("div");
+    div.className = "reward-pop";
+    div.textContent = text;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 1800);
+  }
+
+  function showMissionMessage(text) {
+    const div = document.createElement("div");
+    div.className = "mission-pop";
+    div.textContent = text;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 1600);
+  }
+
+  function showConfetti() {
+    for (let i = 0; i < 80; i++) {
+      const conf = document.createElement("div");
+      conf.style.position = "fixed";
+      conf.style.top = "-10px";
+      conf.style.left = Math.random() * 100 + "vw";
+      conf.style.width = "8px";
+      conf.style.height = "14px";
+      conf.style.background = `hsl(${Math.random() * 360}, 90%, 60%)`;
+      conf.style.opacity = "0.92";
+      conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+      conf.style.zIndex = "9999";
+      conf.style.pointerEvents = "none";
+      conf.style.borderRadius = "2px";
+      document.body.appendChild(conf);
+
+      const duration = 1200 + Math.random() * 1200;
+      const drift = (Math.random() - 0.5) * 220;
+
+      conf.animate(
+        [
+          { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+          { transform: `translate(${drift}px, 100vh) rotate(720deg)`, opacity: 0.15 }
+        ],
+        { duration, easing: "ease-out" }
+      );
+
+      setTimeout(() => conf.remove(), duration);
+    }
+  }
+
+  function award({ coins = 10, xp = 0, badge = null } = {}) {
+    state.coins += coins;
+    state.xp += xp;
+
+    if (badge && !state.badges.includes(badge)) {
+      state.badges.push(badge);
+    }
+
+    el("hudCoins").textContent = `🪙 Moedas: ${state.coins}`;
+    el("hudXP").textContent = `⚡ XP: ${state.xp}`;
+
+    let msg = "";
+    if (coins) msg += `+${coins} moedas 🪙 `;
+    if (xp) msg += `+${xp} XP ⚡`;
+    if (msg) showReward(msg.trim());
+
+    if (badge) {
+      setTimeout(() => showReward(`🏅 ${badge}`), 220);
+    }
+  }
+
+  function next() {
+    state.step++;
+    setProgress();
+
+    if (state.step >= 1 && state.step <= 11) {
+      showMissionMessage(`Nova missão desbloqueada: ${state.step}/11`);
+    }
+
+    render();
+  }
+
+  function back() {
+    state.step = Math.max(0, state.step - 1);
+    setProgress();
+    render();
+  }
+
   function renderIntro() {
     screen.innerHTML = `
+      <div class="shine s1"></div>
+      <div class="shine s2"></div>
+
       <h1>Missões do Letramento Digital</h1>
       <p>Esta é uma entrevista em formato de jogo. Não há respostas certas ou erradas. Responda com sinceridade.</p>
-       `).join("")}
-</div>
+      <p class="small">As respostas serão usadas apenas para fins acadêmicos e tratadas com confidencialidade.</p>
+
+      <div class="hero-badges">
+        <div class="mini-badge">🎮 Missões rápidas</div>
+        <div class="mini-badge">🪙 Recompensas</div>
+        <div class="mini-badge">📚 Pesquisa acadêmica</div>
+      </div>
+
+      <div class="divider"></div>
 
       <h2>Cadastro</h2>
 
@@ -321,16 +587,19 @@
       <label>Digite seu nome</label>
       <input id="nomeBusca" placeholder="Digite pelo menos 2 letras (ex.: ana)" disabled />
       <div id="sugestoes" class="choices"></div>
+      <div class="hint">As sugestões aparecem após selecionar o curso.</div>
 
       <div style="height:10px"></div>
 
       <label>Matrícula (automática)</label>
       <input id="matricula" placeholder="Selecione seu nome acima" disabled value="${escapeHtml(state.matricula)}"/>
 
-      <div class="btns"><button id="startBtn" disabled>Começar</button></div>
+      <div class="btns">
+        <button id="startBtn" disabled>Começar missão</button>
+      </div>
 
       <div class="toast small">
-        Dica: primeiro selecione o curso, depois digite parte do seu nome e escolha na lista.
+        Dica: primeiro selecione o curso, depois digite parte do seu nome e clique na sugestão correta.
       </div>
     `;
 
@@ -420,9 +689,15 @@
     atualizarBotao();
   }
 
-  function renderChoices({title, subtitle, options, selected, multi=false, limit=null, onSelect, extraHtml=""}) {
-    const info = multi && limit ? `<div class="small">Marque até <b>${limit}</b>. (${selected.length}/${limit})</div>` : "";
+  function renderChoices({ title, subtitle, options, selected, multi = false, limit = null, onSelect, extraHtml = "" }) {
+    const info = multi && limit
+      ? `<div class="small">Marque até <b>${limit}</b>. (${selected.length}/${limit})</div>`
+      : "";
+
     screen.innerHTML = `
+      <div class="shine s1"></div>
+      <div class="shine s2"></div>
+
       <h2>${title}</h2>
       <p class="small">${subtitle || ""}</p>
       ${info}
@@ -435,6 +710,7 @@
     `;
 
     const c = screen.querySelector("#choices");
+
     options.forEach(opt => {
       const div = document.createElement("div");
       div.className = "choice" + (
@@ -450,8 +726,11 @@
     screen.querySelector("#back").onclick = back;
   }
 
-  function renderText({title, subtitle, value, placeholder, onSave, showBack=true}) {
+  function renderText({ title, subtitle, value, placeholder, onSave, showBack = true }) {
     screen.innerHTML = `
+      <div class="shine s1"></div>
+      <div class="shine s2"></div>
+
       <h2>${title}</h2>
       <p class="small">${subtitle || ""}</p>
       <textarea id="txt" placeholder="${escapeHtml(placeholder || "")}">${escapeHtml(value || "")}</textarea>
@@ -502,7 +781,7 @@
         state.Q1_outro = state.Q1_atividade === "Outra"
           ? (screen.querySelector("#q1outro")?.value.trim() || "")
           : "";
-        award({coins: 10, xp: 5});
+        award({ coins: 10, xp: 5 });
         next();
       };
       return;
@@ -547,7 +826,7 @@
         if (state.Q2_escolhas.length === 0) return alert("Marque pelo menos 1 opção.");
         state.Q2_jogo_qual = screen.querySelector("#q2jogo").value.trim();
         state.Q2_outro = screen.querySelector("#q2outro").value.trim();
-        award({coins: 10, xp: 5});
+        award({ coins: 10, xp: 5 });
         next();
       };
       return;
@@ -566,7 +845,7 @@
 
       screen.querySelector("#next").onclick = () => {
         if (!state.Q3_usa_estudar) return alert("Escolha Sim ou Não.");
-        award({coins: 10, xp: 5});
+        award({ coins: 10, xp: 5 });
 
         if (state.Q3_usa_estudar === "Sim") {
           renderText({
@@ -576,7 +855,7 @@
             placeholder: "Ex.: Assisto videoaulas e faço resumo…",
             onSave: (txt) => {
               state.Q3_1_exemplo = txt;
-              award({coins: 5, xp: 10});
+              award({ coins: 5, xp: 10 });
             }
           });
           screen.querySelector("#back").onclick = () => { state.step = 3; render(); };
@@ -601,7 +880,7 @@
 
       screen.querySelector("#next").onclick = () => {
         if (!state.Q4_como_aprendeu) return alert("Escolha uma opção.");
-        award({coins: 10, xp: 5});
+        award({ coins: 10, xp: 5 });
         next();
       };
       return;
@@ -620,7 +899,7 @@
 
       screen.querySelector("#next").onclick = () => {
         if (!state.Q5_onde_busca) return alert("Escolha uma opção.");
-        award({coins: 10, xp: 5});
+        award({ coins: 10, xp: 5 });
         next();
       };
       return;
@@ -645,7 +924,7 @@
 
       screen.querySelector("#next").onclick = () => {
         if (!state.Q6_verifica_info) return alert("Escolha um nível.");
-        award({coins: 10, xp: 10, badge: "Detetive da Internet"});
+        award({ coins: 10, xp: 10, badge: "Detetive da Internet" });
         next();
       };
       return;
@@ -664,7 +943,7 @@
 
       screen.querySelector("#next").onclick = () => {
         if (!state.Q7_usou_IA) return alert("Escolha Sim ou Não.");
-        award({coins: 10, xp: 5});
+        award({ coins: 10, xp: 5 });
 
         if (state.Q7_usou_IA === "Sim") {
           renderText({
@@ -674,7 +953,7 @@
             placeholder: "Ex.: Usei para entender um tema…",
             onSave: (txt) => {
               state.Q7_1_experiencia = txt;
-              award({coins: 5, xp: 15, badge: "Explorador de IA"});
+              award({ coins: 5, xp: 15, badge: "Explorador de IA" });
             }
           });
           screen.querySelector("#back").onclick = () => { state.step = 7; render(); };
@@ -699,7 +978,7 @@
 
       screen.querySelector("#next").onclick = () => {
         if (!state.Q8_estrutura_IFAC) return alert("Escolha uma opção.");
-        award({coins: 10, xp: 5});
+        award({ coins: 10, xp: 5 });
         next();
       };
       return;
@@ -718,7 +997,7 @@
 
       screen.querySelector("#next").onclick = () => {
         if (!state.Q9_prof_incentiva) return alert("Escolha uma opção.");
-        award({coins: 10, xp: 5});
+        award({ coins: 10, xp: 5 });
 
         if (state.Q9_prof_incentiva !== "Não") {
           renderText({
@@ -728,7 +1007,7 @@
             placeholder: "Ex.: Usamos vídeos, formulários…",
             onSave: (txt) => {
               state.Q9_1_exemplo = txt;
-              award({coins: 5, xp: 10});
+              award({ coins: 5, xp: 10 });
             }
           });
           screen.querySelector("#back").onclick = () => { state.step = 9; render(); };
@@ -766,7 +1045,7 @@
         state.Q10_outra = state.Q10_dificuldade === "Outra"
           ? (screen.querySelector("#q10outra")?.value.trim() || "")
           : "";
-        award({coins: 10, xp: 10});
+        award({ coins: 10, xp: 10 });
         next();
       };
       return;
@@ -795,11 +1074,12 @@
 
       screen.querySelector("#next").onclick = async () => {
         if (!state.Q11_habilidade) return alert("Escolha uma opção.");
+
         state.Q11_outra = state.Q11_habilidade === "Outra"
           ? (screen.querySelector("#q11outra")?.value.trim() || "")
           : "";
 
-        award({coins: 15, xp: 20, badge: "Explorador Digital"});
+        award({ coins: 15, xp: 20, badge: "Explorador Digital" });
 
         const payload = {
           timestamp_inicio: state.startedAt,
@@ -833,40 +1113,66 @@
         };
 
         screen.innerHTML = `
-  <h1>Missão concluída! ✅</h1>
-  <p>
-    Obrigado por participar.<br>
-    Suas respostas vão contribuir para melhorar o uso de tecnologias digitais nas aulas do IFAC.
-  </p>
-  <div class="divider"></div>
-  <div class="tag">🪙 Moedas: <b>${state.coins}</b></div>
-  <div class="tag">⚡ XP: <b>${state.xp}</b></div>
-  <div class="divider"></div>
-  <h2>Badges</h2>
-  ${
-    state.badges.length
-      ? `
-        <div id="badgesWrap" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
-          ${state.badges.map(b => `
-            <div style="
-              padding:10px 14px;
-              border-radius:12px;
-              background:rgba(124,92,255,0.18);
-              border:1px solid rgba(124,92,255,0.35);
-              font-size:14px;
-              font-weight:600;
-            ">
-              🏅 ${escapeHtml(b)}
-            </div>
-          `).join("")}
-        </div>
-      `
-      : `<p class="small">Nenhum badge conquistado.</p>`
-  }
-  <div class="btns"><button onclick="location.reload()">Sair</button></div>
-`;
+          <h2>Enviando suas respostas…</h2>
+          <p class="small">Aguarde só um instante.</p>
+        `;
 
-showConfetti();
+        try {
+          const resp = await fetch(WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          });
+
+          const json = await resp.json();
+          if (!json.ok) throw new Error(json.error || "Falha ao salvar.");
+
+          screen.innerHTML = `
+            <div class="shine s1"></div>
+            <div class="shine s2"></div>
+
+            <h1>Missão concluída! ✅</h1>
+            <p>
+              Obrigado por participar.<br>
+              Suas respostas vão contribuir para melhorar o uso de tecnologias digitais nas aulas do IFAC.
+            </p>
+
+            <div class="result-cards">
+              <div class="result-card">
+                <div class="result-title">Moedas</div>
+                <div class="result-value">🪙 ${state.coins}</div>
+              </div>
+              <div class="result-card">
+                <div class="result-title">XP</div>
+                <div class="result-value">⚡ ${state.xp}</div>
+              </div>
+              <div class="result-card">
+                <div class="result-title">Nível</div>
+                <div class="result-value">🚀 Explorador</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+            <h2>Badges</h2>
+            ${
+              state.badges.length
+                ? `
+                  <div class="badge-grid">
+                    ${state.badges.map(b => `
+                      <div class="badge-card">🏅 ${escapeHtml(b)}</div>
+                    `).join("")}
+                  </div>
+                `
+                : `<p class="small">Nenhum badge conquistado.</p>`
+            }
+
+            <div class="btns">
+              <button onclick="location.reload()">Jogar novamente</button>
+            </div>
+          `;
+
+          showConfetti();
+
         } catch (e) {
           screen.innerHTML = `
             <h2>Não consegui salvar 😕</h2>

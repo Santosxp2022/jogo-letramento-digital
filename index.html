@@ -182,6 +182,41 @@
   }, 1800);
 }
   
+  function showConfetti() {
+  for (let i = 0; i < 80; i++) {
+    const conf = document.createElement("div");
+    conf.style.position = "fixed";
+    conf.style.top = "-10px";
+    conf.style.left = Math.random() * 100 + "vw";
+    conf.style.width = "8px";
+    conf.style.height = "14px";
+    conf.style.background = `hsl(${Math.random() * 360}, 90%, 60%)`;
+    conf.style.opacity = "0.9";
+    conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+    conf.style.zIndex = "9999";
+    conf.style.pointerEvents = "none";
+    conf.style.borderRadius = "2px";
+
+    document.body.appendChild(conf);
+
+    const duration = 1200 + Math.random() * 1200;
+    const drift = (Math.random() - 0.5) * 200;
+
+    conf.animate(
+      [
+        { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${drift}px, 100vh) rotate(720deg)`, opacity: 0.2 }
+      ],
+      {
+        duration,
+        easing: "ease-out"
+      }
+    );
+
+    setTimeout(() => conf.remove(), duration);
+  }
+}
+  
   function award({coins=10, xp=0, badge=null} = {}) {
   state.coins += coins;
   state.xp += xp;
@@ -799,6 +834,7 @@
             <p class="small">${state.badges.map(b => `🏅 ${escapeHtml(b)}`).join("<br>")}</p>
             <div class="btns"><button onclick="location.reload()">Sair</button></div>
           `;
+          showConfetti();
         } catch (e) {
           screen.innerHTML = `
             <h2>Não consegui salvar 😕</h2>

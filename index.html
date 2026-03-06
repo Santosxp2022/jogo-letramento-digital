@@ -67,10 +67,27 @@
   return alunosCache;
 }
   // COLE A URL DO SEU WEB APP AQUI (termina com /exec)
+ <script>
+  // 1) URL primeiro (antes de usar)
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjNyAhaA0USNhwdLfJ_c7PD0IY9FZ-ej24f4lvDDchOjhIPj_A4hQFKFYPdFIkYjvy/exec";
 
-let alunosCache = [];
-let alunoSelecionado = null;
+  let alunosCache = [];
+  let alunoSelecionado = null;
+
+  async function carregarAlunosPorCurso(curso) {
+    const url = `${WEB_APP_URL}?fn=alunos&curso=${encodeURIComponent(curso)}`;
+    const resp = await fetch(url);
+    const json = await resp.json();
+
+    // aqui é o ponto que faltava:
+    alunosCache = json.alunos || [];
+    alunoSelecionado = null;
+
+    return alunosCache;
+  }
+
+  // ... o resto do seu script continua aqui embaixo ...
+</script>
   const state = {
     startedAt: new Date().toISOString(),
     coins: 0, xp: 0, badges: [],
@@ -114,135 +131,138 @@ let alunoSelecionado = null;
   }
   function sel(v){ return state.curso===v ? "selected" : ""; }
 
-  function renderIntro() {
-    screen.innerHTML = `
-  <h1>Missões do Letramento Digital</h1>
-  <p>Esta é uma entrevista em formato de jogo. Não há respostas certas ou erradas. Responda com sinceridade.</p>
-  <p class="small">As respostas serão usadas apenas para fins acadêmicos e tratadas com confidencialidade.</p>
-  <div class="divider"></div>
+ function renderIntro() {
+  screen.innerHTML = `
+    <h1>Missões do Letramento Digital</h1>
+    <p>Esta é uma entrevista em formato de jogo. Não há respostas certas ou erradas. Responda com sinceridade.</p>
+    <p class="small">As respostas serão usadas apenas para fins acadêmicos e tratadas com confidencialidade.</p>
+    <div class="divider"></div>
 
-  <h2>Cadastro</h2>
+    <h2>Cadastro</h2>
 
-  <label>Curso</label>
-  <select id="curso">
-    <option value="">Selecione...</option>
-    <option ${sel("Técnico em Agropecuária")}>Técnico em Agropecuária</option>
-    <option ${sel("Técnico em Alimentos")}>Técnico em Alimentos</option>
-    <option ${sel("Técnico em Biotecnologia")}>Técnico em Biotecnologia</option>
-  </select>
+    <label>Curso</label>
+    <select id="curso">
+      <option value="">Selecione...</option>
+      <option ${sel("Técnico em Agropecuária")}>Técnico em Agropecuária</option>
+      <option ${sel("Técnico em Alimentos")}>Técnico em Alimentos</option>
+      <option ${sel("Técnico em Biotecnologia")}>Técnico em Biotecnologia</option>
+    </select>
 
-  <div style="height:10px"></div>
-  
-  <input id="nomeBusca" placeholder="Digite pelo menos 2 letras (ex.: ana)" disabled />
-<div id="sugestoes" style="margin-top:10px"></div>
+    <div style="height:10px"></div>
 
+    <label>Digite seu nome</label>
+    <input id="nomeBusca" placeholder="Digite pelo menos 2 letras (ex.: ana)" disabled />
+    <div id="sugestoes" style="margin-top:10px"></div>
 
-  <div style="height:10px"></div>
+    <div style="height:10px"></div>
 
-  <label>Matrícula (automática)</label>
-  <input id="matricula" placeholder="Selecione seu nome acima" disabled value="${escapeHtml(state.matricula)}"/>
+    <label>Matrícula (automática)</label>
+    <input id="matricula" placeholder="Selecione seu nome acima" disabled value="${escapeHtml(state.matricula)}"/>
 
-  <div class="btns"><button id="startBtn" disabled>Começar</button></div>
+    <div class="btns"><button id="startBtn" disabled>Começar</button></div>
 
- <div class="toast small">
-Dica: primeiro selecione o curso, depois digite parte do seu nome e escolha na lista.
-</div>    
-  
+    <div class="toast small">
+      Dica: primeiro selecione o curso, depois digite parte do seu nome e escolha na lista.
+    </div>
+  `; // 👈 IMPORTANTE: o HTML termina aqui!
 
-    // se você manteve o consentimento
+  // Agora sim: JS FORA do innerHTML
+  const cursoSel = screen.querySelector("#curso");
+  const nomeBusca = screen.querySelector("#nomeBusca");
+  const sugestoes = screen.querySelector("#sugestoes");
+  const matriculaInput = screen.querySelector("#matricula");
+  const startBtn = screen.querySelector("#startBtn");
 
-function atualizarBotao() {
-  const cursoOk = !!cursoSel.value;
-  const alunoOk = !!state.nome && !!state.matricula;
-  const consentOk = consent ? consent.checked : true;
-  startBtn.disabled = !(cursoOk && alunoOk && consentOk);
-}
-
-// Quando escolher o curso: carrega a lista
-cursoSel.addEventListener("change", async () => {
-sugestoes.innerHTML = "";
-  const curso = cursoSel.value;
-  // limpa seleção anterior
-  state.nome = "";
-  state.matricula = "";
-  nomeBusca.value = "";
-  matriculaInput.value = "";
-  nomeBusca.disabled = true;
-  atualizarBotao();
-
-  if (!curso) return;
-
-
-  try {
-    const alunos = await carregarAlunosPorCurso(curso);
-  
-        nomeBusca.disabled = false;
-    nomeBusca.placeholder = "Digite parte do nome (ex.: ana)";
-  } catch (e) {
-    nomeBusca.placeholder = "Erro ao carregar alunos. Tente novamente.";
-    console.error(e);
+  function atualizarBotao() {
+    const cursoOk = !!cursoSel.value;
+    const alunoOk = !!state.nome && !!state.matricula;
+    startBtn.disabled = !(cursoOk && alunoOk);
   }
-});
 
-// Quando digitar/selecionar: verifica se bate com algum aluno
-function normTxt(s) {
-  return String(s || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
-}
+  function normTxt(s) {
+    return String(s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  }
 
-nomeBusca.addEventListener("input", () => {
-  const q = normTxt(nomeBusca.value);
+  cursoSel.addEventListener("change", async () => {
+    sugestoes.innerHTML = "";
 
-  // limpa seleção anterior ao digitar
-  state.nome = "";
-  state.matricula = "";
-  matriculaInput.value = "";
-  sugestoes.innerHTML = "";
-
-  if (q.length < 2) {
+    const curso = cursoSel.value;
+    state.nome = "";
+    state.matricula = "";
+    nomeBusca.value = "";
+    matriculaInput.value = "";
+    nomeBusca.disabled = true;
     atualizarBotao();
-    return;
-  }
 
-  const results = alunosCache
-    .filter(a => normTxt(a.nome).includes(q))
-    .slice(0, 12);
+    if (!curso) return;
 
-  results.forEach(a => {
-    const item = document.createElement("div");
-    item.textContent = a.nome;
-    item.style.padding = "10px";
-    item.style.border = "1px solid rgba(255,255,255,.12)";
-    item.style.borderRadius = "10px";
-    item.style.marginTop = "8px";
-    item.style.cursor = "pointer";
-    item.style.background = "rgba(255,255,255,.04)";
+    try {
+      await carregarAlunosPorCurso(curso);
+      nomeBusca.disabled = false;
+      nomeBusca.placeholder = "Digite parte do nome (ex.: ana)";
+    } catch (e) {
+      nomeBusca.placeholder = "Erro ao carregar alunos. Tente novamente.";
+      console.error(e);
+    }
+  });
 
-    item.onclick = () => {
-      state.nome = a.nome;
-      state.matricula = a.matricula;
-      matriculaInput.value = state.matricula;
+  nomeBusca.addEventListener("input", () => {
+    const q = normTxt(nomeBusca.value);
 
-      // mostra só o selecionado
-      sugestoes.innerHTML = "";
-      const sel = document.createElement("div");
-      sel.textContent = a.nome;
-      sel.style.padding = "10px";
-      sel.style.borderRadius = "10px";
-      sel.style.background = "rgba(255,255,255,.08)";
-      sugestoes.appendChild(sel);
+    // limpa seleção ao digitar
+    state.nome = "";
+    state.matricula = "";
+    matriculaInput.value = "";
+    sugestoes.innerHTML = "";
 
+    if (q.length < 2) {
       atualizarBotao();
-    };
+      return;
+    }
 
-    sugestoes.appendChild(item);
+    const results = alunosCache
+      .filter(a => normTxt(a.nome).includes(q))
+      .slice(0, 12);
+
+    results.forEach(a => {
+      const item = document.createElement("div");
+      item.className = "choice";
+      item.textContent = a.nome;
+
+      item.onclick = () => {
+        state.nome = a.nome;
+        state.matricula = a.matricula;
+        matriculaInput.value = state.matricula;
+
+        sugestoes.innerHTML = "";
+        const selDiv = document.createElement("div");
+        selDiv.className = "choice selected";
+        selDiv.textContent = a.nome;
+        sugestoes.appendChild(selDiv);
+
+        atualizarBotao();
+      };
+
+      sugestoes.appendChild(item);
+    });
+
+    atualizarBotao();
+  });
+
+  startBtn.addEventListener("click", () => {
+    state.curso = cursoSel.value;
+    award({ coins: 15, xp: 10, badge: "Cadastro concluído" });
+    next();
   });
 
   atualizarBotao();
-});
+}
+
+   
 // Clique em começar
 startBtn.addEventListener("click", () => {
   if (!cursoSel.value) return alert("Selecione o curso.");

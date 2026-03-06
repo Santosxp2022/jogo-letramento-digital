@@ -54,20 +54,7 @@
 
 <script>
  
-  async function carregarAlunosPorCurso(curso) {
-  // monta a URL: /exec?fn=alunos&curso=...
-  const url = `${WEB_APP_URL}?fn=alunos&curso=${encodeURIComponent(curso)}`;
-  const resp = await fetch(url, { method: "GET" });
-  const json = await resp.json();
-
-  // Alguns scripts retornam { alunos: [...] } e outros { ok:true, alunos:[...] }.
-  
- 
-  alunoSelecionado = null;
-  return alunosCache;
-}
-
-  async function carregarAlunosPorCurso(curso) {
+    async function carregarAlunosPorCurso(curso) {
     const url = `${WEB_APP_URL}?fn=alunos&curso=${encodeURIComponent(curso)}`;
     const resp = await fetch(url);
     const json = await resp.json();
@@ -80,8 +67,7 @@
   }
 
   // ... o resto do seu script continua aqui embaixo ...
-</script>
-  const state = {
+const state = {
     startedAt: new Date().toISOString(),
     coins: 0, xp: 0, badges: [],
     step: 0,
@@ -246,13 +232,7 @@
     atualizarBotao();
   });
 
-  startBtn.addEventListener("click", () => {
-    state.curso = cursoSel.value;
-    award({ coins: 15, xp: 10, badge: "Cadastro concluído" });
-    next();
-  });
-
-  atualizarBotao();
+   atualizarBotao();
 }
 
    

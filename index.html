@@ -6,22 +6,19 @@
   <title>Missões do Letramento Digital</title>
   <style>
     :root{
-      --bg-1:#050b1f;
-      --bg-2:#0c1738;
-      --bg-3:#0f1f4a;
-      --panel:rgba(20,31,61,.78);
-      --panel-soft:rgba(255,255,255,.05);
+      --bg-1:#040817;
+      --bg-2:#0a1431;
+      --bg-3:#11204d;
+      --panel:rgba(18,28,58,.78);
       --line:rgba(255,255,255,.12);
       --text:#eef3ff;
-      --muted:#b8c3eb;
+      --muted:#b7c3ea;
       --primary:#7c5cff;
       --primary-2:#a78bfa;
       --cyan:#22d3ee;
       --green:#2dd4bf;
       --yellow:#fbbf24;
-      --danger:#fb7185;
       --shadow:0 20px 45px rgba(0,0,0,.34);
-      --radius:22px;
     }
 
     *{box-sizing:border-box}
@@ -31,9 +28,9 @@
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at 10% 10%, rgba(124,92,255,.18), transparent 20%),
-        radial-gradient(circle at 85% 12%, rgba(34,211,238,.13), transparent 18%),
-        radial-gradient(circle at 50% 100%, rgba(45,212,191,.08), transparent 25%),
+        radial-gradient(circle at 15% 12%, rgba(124,92,255,.20), transparent 18%),
+        radial-gradient(circle at 82% 12%, rgba(34,211,238,.14), transparent 16%),
+        radial-gradient(circle at 50% 100%, rgba(45,212,191,.08), transparent 24%),
         linear-gradient(180deg, var(--bg-1), var(--bg-2) 42%, var(--bg-3));
       overflow-x:hidden;
     }
@@ -42,12 +39,61 @@
       position:fixed;
       inset:0;
       pointer-events:none;
-      opacity:.12;
+      opacity:.11;
       background-image:
         linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
-      background-size: 30px 30px;
-      mask-image: radial-gradient(circle at center, rgba(0,0,0,.9), transparent 85%);
+      background-size:30px 30px;
+      mask-image: radial-gradient(circle at center, rgba(0,0,0,.95), transparent 85%);
+      z-index:0;
+    }
+
+    .bg-gamer{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      opacity:.50;
+      background-repeat:no-repeat;
+      background-position:center center;
+      background-size:cover;
+      background-image:
+        linear-gradient(180deg, rgba(4,8,23,.10), rgba(4,8,23,.55)),
+        url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'>\
+<defs>\
+<linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'>\
+<stop stop-color='%230b1538' offset='0'/>\
+<stop stop-color='%23121d4b' offset='1'/>\
+</linearGradient>\
+<linearGradient id='g2' x1='0' y1='0' x2='1' y2='0'>\
+<stop stop-color='%237c5cff' stop-opacity='.9' offset='0'/>\
+<stop stop-color='%2322d3ee' stop-opacity='.9' offset='1'/>\
+</linearGradient>\
+<filter id='blur'><feGaussianBlur stdDeviation='8'/></filter>\
+</defs>\
+<rect width='1600' height='900' fill='url(%23g1)'/>\
+<circle cx='220' cy='120' r='150' fill='%237c5cff' opacity='.12' filter='url(%23blur)'/>\
+<circle cx='1360' cy='160' r='150' fill='%2322d3ee' opacity='.10' filter='url(%23blur)'/>\
+<circle cx='820' cy='760' r='200' fill='%232dd4bf' opacity='.07' filter='url(%23blur)'/>\
+<path d='M0 690 L350 520 L620 640 L940 420 L1230 540 L1600 360' fill='none' stroke='url(%23g2)' stroke-width='6' opacity='.35'/>\
+<path d='M0 760 L260 640 L520 730 L860 520 L1100 630 L1600 470' fill='none' stroke='url(%23g2)' stroke-width='3' opacity='.25'/>\
+<rect x='110' y='520' width='220' height='130' rx='18' fill='%23142045' stroke='%237c5cff' stroke-opacity='.45'/>\
+<rect x='130' y='540' width='180' height='90' rx='10' fill='%2309142f' stroke='%2322d3ee' stroke-opacity='.35'/>\
+<rect x='1250' y='470' width='230' height='150' rx='22' fill='%23142045' stroke='%2322d3ee' stroke-opacity='.40'/>\
+<rect x='1275' y='500' width='180' height='90' rx='14' fill='%2309142f' stroke='%237c5cff' stroke-opacity='.35'/>\
+<rect x='730' y='320' width='150' height='230' rx='28' fill='%23142045' stroke='%237c5cff' stroke-opacity='.45'/>\
+<rect x='750' y='350' width='110' height='170' rx='18' fill='%2309142f' stroke='%2322d3ee' stroke-opacity='.35'/>\
+<circle cx='805' cy='378' r='10' fill='%23fbbf24' opacity='.9'/>\
+<rect x='770' y='470' width='70' height='18' rx='9' fill='%237c5cff' opacity='.8'/>\
+<g opacity='.45'>\
+<circle cx='200' cy='260' r='4' fill='white'/>\
+<circle cx='260' cy='300' r='3' fill='white'/>\
+<circle cx='1340' cy='260' r='4' fill='white'/>\
+<circle cx='1220' cy='210' r='3' fill='white'/>\
+<circle cx='880' cy='180' r='3' fill='white'/>\
+</g>\
+</svg>");
     }
 
     .wrap{
@@ -108,8 +154,6 @@
       color:#f3f6ff;
     }
 
-    .pill strong{font-weight:900}
-
     .progress-card{
       padding:10px 12px 12px;
       background:rgba(255,255,255,.04);
@@ -142,11 +186,8 @@
       height:100%;
       width:0%;
       border-radius:999px;
-      background:
-        linear-gradient(90deg, var(--primary), var(--primary-2));
-      box-shadow:
-        0 0 20px rgba(124,92,255,.45),
-        inset 0 0 10px rgba(255,255,255,.25);
+      background:linear-gradient(90deg, var(--primary), var(--primary-2));
+      box-shadow:0 0 20px rgba(124,92,255,.45), inset 0 0 10px rgba(255,255,255,.25);
       transition:width .3s ease;
       position:relative;
     }
@@ -169,8 +210,7 @@
       overflow:hidden;
       border-radius:26px;
       padding:22px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
       border:1px solid rgba(255,255,255,.12);
       box-shadow:var(--shadow);
       backdrop-filter: blur(16px);
@@ -480,6 +520,7 @@
 </head>
 <body>
 <div class="bg-grid"></div>
+<div class="bg-gamer"></div>
 
 <div class="wrap">
   <div class="headline">
@@ -513,6 +554,8 @@
 
   let alunosCache = [];
   let alunoSelecionado = null;
+  let audioCtx = null;
+  let audioUnlocked = false;
 
   async function carregarAlunosPorCurso(curso) {
     const url = `${WEB_APP_URL}?fn=alunos&curso=${encodeURIComponent(curso)}`;
@@ -521,6 +564,55 @@
     alunosCache = json.alunos || [];
     alunoSelecionado = null;
     return alunosCache;
+  }
+
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioUnlocked = true;
+    } catch (e) {
+      console.warn("Áudio não disponível", e);
+    }
+  }
+
+  function playTone({freq=440, duration=0.08, type="sine", gain=0.03, when=0}) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+
+    osc.type = type;
+    osc.frequency.value = freq;
+    g.gain.value = gain;
+
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+
+    const startAt = audioCtx.currentTime + when;
+    osc.start(startAt);
+    g.gain.setValueAtTime(gain, startAt);
+    g.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+    osc.stop(startAt + duration);
+  }
+
+  function playRewardSound() {
+    if (!audioUnlocked || !audioCtx) return;
+    playTone({freq:740, duration:0.07, type:"triangle", gain:0.03, when:0});
+    playTone({freq:988, duration:0.09, type:"triangle", gain:0.028, when:0.08});
+  }
+
+  function playMissionSound() {
+    if (!audioUnlocked || !audioCtx) return;
+    playTone({freq:523, duration:0.06, type:"sine", gain:0.028, when:0});
+    playTone({freq:659, duration:0.07, type:"sine", gain:0.025, when:0.08});
+  }
+
+  function playVictorySound() {
+    if (!audioUnlocked || !audioCtx) return;
+    playTone({freq:523, duration:0.08, type:"triangle", gain:0.03, when:0});
+    playTone({freq:659, duration:0.08, type:"triangle", gain:0.03, when:0.09});
+    playTone({freq:784, duration:0.10, type:"triangle", gain:0.03, when:0.18});
+    playTone({freq:1046, duration:0.18, type:"triangle", gain:0.028, when:0.30});
   }
 
   const state = {
@@ -663,8 +755,14 @@
     let msg = "";
     if (coins) msg += `+${coins} moedas 🪙 `;
     if (xp) msg += `+${xp} XP ⚡`;
-    if (msg) showReward(msg.trim());
-    if (badge) setTimeout(() => showReward(`🏅 ${badge}`), 220);
+    if (msg) {
+      showReward(msg.trim());
+      playRewardSound();
+    }
+
+    if (badge) {
+      setTimeout(() => showReward(`🏅 ${badge}`), 220);
+    }
   }
 
   function next() {
@@ -672,6 +770,7 @@
     setProgress();
     if (state.step >= 1 && state.step <= 11) {
       showMissionMessage(`Nova missão desbloqueada: ${state.step}/11`);
+      playMissionSound();
     }
     render();
   }
@@ -694,7 +793,7 @@
       <div class="hero-tags">
         <div class="hero-tag">🎮 Interativo</div>
         <div class="hero-tag">🪙 Recompensas</div>
-        <div class="hero-tag">📚 Pesquisa</div>
+        <div class="hero-tag">🔊 Som imersivo</div>
       </div>
 
       <div class="divider"></div>
@@ -743,6 +842,7 @@
     }
 
     cursoSel.addEventListener("change", async () => {
+      unlockAudio();
       sugestoes.innerHTML = "";
       state.nome = "";
       state.matricula = "";
@@ -793,6 +893,7 @@
         item.textContent = a.nome;
 
         item.onclick = () => {
+          unlockAudio();
           alunoSelecionado = a;
           state.nome = a.nome;
           state.matricula = a.matricula;
@@ -804,6 +905,7 @@
           selDiv.textContent = a.nome;
           sugestoes.appendChild(selDiv);
 
+          playMissionSound();
           atualizarBotao();
         };
 
@@ -814,6 +916,7 @@
     });
 
     startBtn.addEventListener("click", () => {
+      unlockAudio();
       state.curso = cursoSel.value;
       award({ coins: 15, xp: 10, badge: "Cadastro concluído" });
       next();
@@ -852,7 +955,10 @@
           : (selected === opt ? " selected" : "")
       );
       div.textContent = opt;
-      div.onclick = () => onSelect(opt);
+      div.onclick = () => {
+        unlockAudio();
+        onSelect(opt);
+      };
       c.appendChild(div);
     });
 
@@ -876,6 +982,7 @@
     if (showBack) screen.querySelector("#back").onclick = back;
 
     screen.querySelector("#next").onclick = () => {
+      unlockAudio();
       onSave(screen.querySelector("#txt").value.trim());
       next();
     };
@@ -910,6 +1017,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q1_atividade) return alert("Escolha uma opção.");
         state.Q1_outro = state.Q1_atividade === "Outra"
           ? (screen.querySelector("#q1outro")?.value.trim() || "")
@@ -956,6 +1064,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (state.Q2_escolhas.length === 0) return alert("Marque pelo menos 1 opção.");
         state.Q2_jogo_qual = screen.querySelector("#q2jogo").value.trim();
         state.Q2_outro = screen.querySelector("#q2outro").value.trim();
@@ -977,6 +1086,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q3_usa_estudar) return alert("Escolha Sim ou Não.");
         award({ coins: 10, xp: 5 });
 
@@ -1012,6 +1122,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q4_como_aprendeu) return alert("Escolha uma opção.");
         award({ coins: 10, xp: 5 });
         next();
@@ -1031,6 +1142,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q5_onde_busca) return alert("Escolha uma opção.");
         award({ coins: 10, xp: 5 });
         next();
@@ -1056,6 +1168,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q6_verifica_info) return alert("Escolha um nível.");
         award({ coins: 10, xp: 10, badge: "Detetive da Internet" });
         next();
@@ -1075,6 +1188,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q7_usou_IA) return alert("Escolha Sim ou Não.");
         award({ coins: 10, xp: 5 });
 
@@ -1110,6 +1224,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q8_estrutura_IFAC) return alert("Escolha uma opção.");
         award({ coins: 10, xp: 5 });
         next();
@@ -1129,6 +1244,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q9_prof_incentiva) return alert("Escolha uma opção.");
         award({ coins: 10, xp: 5 });
 
@@ -1174,6 +1290,7 @@
       });
 
       screen.querySelector("#next").onclick = () => {
+        unlockAudio();
         if (!state.Q10_dificuldade) return alert("Escolha uma opção.");
         state.Q10_outra = state.Q10_dificuldade === "Outra"
           ? (screen.querySelector("#q10outra")?.value.trim() || "")
@@ -1206,6 +1323,8 @@
       });
 
       screen.querySelector("#next").onclick = async () => {
+        unlockAudio();
+
         if (!state.Q11_habilidade) return alert("Escolha uma opção.");
 
         state.Q11_outra = state.Q11_habilidade === "Outra"
@@ -1305,6 +1424,7 @@
           `;
 
           showConfetti();
+          playVictorySound();
 
         } catch (e) {
           screen.innerHTML = `

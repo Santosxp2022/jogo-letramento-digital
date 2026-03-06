@@ -144,15 +144,10 @@ let alunoSelecionado = null;
 
   <div class="btns"><button id="startBtn" disabled>Começar</button></div>
 
-  <div class="toast small">
-    
-    // Elementos da tela
-const cursoSel = screen.querySelector("#curso");
-const nomeBusca = screen.querySelector("#nomeBusca");
-const sugestoes = screen.querySelector("#sugestoes");
-const matriculaInput = screen.querySelector("#matricula");
-const startBtn = screen.querySelector("#startBtn");
-const consent = screen.querySelector("#consentimento");
+ <div class="toast small">
+Dica: primeiro selecione o curso, depois digite parte do seu nome e escolha na lista.
+</div>    
+  
 
     // se você manteve o consentimento
 
@@ -292,6 +287,13 @@ chk.addEventListener("change", () => {
         <button id="next">Continuar</button>
       </div>
     `;
+      // Elementos da tela
+const cursoSel = screen.querySelector("#curso");
+const nomeBusca = screen.querySelector("#nomeBusca");
+const sugestoes = screen.querySelector("#sugestoes");
+const matriculaInput = screen.querySelector("#matricula");
+const startBtn = screen.querySelector("#startBtn");
+const consent = screen.querySelector("#consentimento");
     const c = screen.querySelector("#choices");
     options.forEach(opt => {
       const div = document.createElement("div");

@@ -844,50 +844,41 @@
           badges: state.badges
         };
 
-        screen.innerHTML = `<h2>Enviando suas respostas…</h2><p class="small">Aguarde.</p>`;
+        screen.innerHTML = `
+  <h1>Missão concluída! ✅</h1>
+  <p>
+    Obrigado por participar.<br>
+    Suas respostas vão contribuir para melhorar o uso de tecnologias digitais nas aulas do IFAC.
+  </p>
+  <div class="divider"></div>
+  <div class="tag">🪙 Moedas: <b>${state.coins}</b></div>
+  <div class="tag">⚡ XP: <b>${state.xp}</b></div>
+  <div class="divider"></div>
+  <h2>Badges</h2>
+  ${
+    state.badges.length
+      ? `
+        <div id="badgesWrap" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+          ${state.badges.map(b => `
+            <div style="
+              padding:10px 14px;
+              border-radius:12px;
+              background:rgba(124,92,255,0.18);
+              border:1px solid rgba(124,92,255,0.35);
+              font-size:14px;
+              font-weight:600;
+            ">
+              🏅 ${escapeHtml(b)}
+            </div>
+          `).join("")}
+        </div>
+      `
+      : `<p class="small">Nenhum badge conquistado.</p>`
+  }
+  <div class="btns"><button onclick="location.reload()">Sair</button></div>
+`;
 
-        try {
-          const resp = await fetch(WEB_APP_URL, {
-            method: "POST",
-            headers: { "Content-Type":"text/plain;charset=utf-8" },
-            body: JSON.stringify(payload)
-          });
-
-          const json = await resp.json();
-          if (!json.ok) throw new Error(json.error || "Falha ao salvar.");
-
-          screen.innerHTML = `
-            <h1>Missão concluída! ✅</h1>
-            <p>
-              Obrigado por participar.<br>
-              Suas respostas vão contribuir para melhorar o uso de tecnologias digitais nas aulas do IFAC.
-            </p>
-            <div class="divider"></div>
-            <div class="tag">🪙 Moedas: <b>${state.coins}</b></div>
-            <div class="tag">⚡ XP: <b>${state.xp}</b></div>
-            <div class="divider"></div>
-            <h2>Badges</h2>
-${
-  state.badges.length
-    ? `
-      <div id="badgesWrap" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
-        ${state.badges.map(b => `
-          <div style="
-            padding:10px 14px;
-            border-radius:12px;
-            background:rgba(124,92,255,0.18);
-            border:1px solid rgba(124,92,255,0.35);
-            font-size:14px;
-            font-weight:600;
-          ">
-            🏅 ${escapeHtml(b)}
-          </div>
-        `).join("")}
-      </div>
-    `
-    : `<p class="small">Nenhum badge conquistado.</p>`
-}
-          showConfetti();
+showConfetti();
         } catch (e) {
           screen.innerHTML = `
             <h2>Não consegui salvar 😕</h2>

@@ -54,8 +54,7 @@
 
 <script>
  
-    async function carregarAlunosPorCurso(curso) {
-    const url = `${WEB_APP_URL}?fn=alunos&curso=${encodeURIComponent(curso)}`;
+   
     const resp = await fetch(url);
     const json = await resp.json();
 
@@ -143,9 +142,8 @@ const state = {
     <div class="toast small">
       Dica: primeiro selecione o curso, depois digite parte do seu nome e escolha na lista.
     </div>
-  `; // 👈 IMPORTANTE: o HTML termina aqui!
+  `;
 
-  // Agora sim: JS FORA do innerHTML
   const cursoSel = screen.querySelector("#curso");
   const nomeBusca = screen.querySelector("#nomeBusca");
   const sugestoes = screen.querySelector("#sugestoes");
@@ -168,8 +166,6 @@ const state = {
 
   cursoSel.addEventListener("change", async () => {
     sugestoes.innerHTML = "";
-
-    const curso = cursoSel.value;
     state.nome = "";
     state.matricula = "";
     nomeBusca.value = "";
@@ -177,10 +173,10 @@ const state = {
     nomeBusca.disabled = true;
     atualizarBotao();
 
-    if (!curso) return;
+    if (!cursoSel.value) return;
 
     try {
-      await carregarAlunosPorCurso(curso);
+      await carregarAlunosPorCurso(cursoSel.value);
       nomeBusca.disabled = false;
       nomeBusca.placeholder = "Digite parte do nome (ex.: ana)";
     } catch (e) {
@@ -191,8 +187,6 @@ const state = {
 
   nomeBusca.addEventListener("input", () => {
     const q = normTxt(nomeBusca.value);
-
-    // limpa seleção ao digitar
     state.nome = "";
     state.matricula = "";
     matriculaInput.value = "";
@@ -215,7 +209,7 @@ const state = {
       item.onclick = () => {
         state.nome = a.nome;
         state.matricula = a.matricula;
-        matriculaInput.value = state.matricula;
+        matriculaInput.value = a.matricula;
 
         sugestoes.innerHTML = "";
         const selDiv = document.createElement("div");
@@ -225,21 +219,6 @@ const state = {
 
         atualizarBotao();
       };
-
-      sugestoes.appendChild(item);
-    });
-
-    atualizarBotao();
-  });
-
-   atualizarBotao();
-}
-
-   
-// Clique em começar
-startBtn.addEventListener("click", () => {
-  if (!cursoSel.value) return alert("Selecione o curso.");
-  if (consent && !consent.checked) return alert("Marque o consentimento para continuar.");
 
   state.curso = cursoSel.value;
   award({ coins: 15, xp: 10, badge: "Cadastro concluído" });

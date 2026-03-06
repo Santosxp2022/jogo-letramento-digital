@@ -216,7 +216,26 @@
     setTimeout(() => conf.remove(), duration);
   }
 }
-  
+
+  function showMissionMessage(text) {
+  const div = document.createElement("div");
+  div.style.position = "fixed";
+  div.style.top = "80px";
+  div.style.left = "50%";
+  div.style.transform = "translateX(-50%)";
+  div.style.background = "rgba(124,92,255,0.95)";
+  div.style.padding = "14px 20px";
+  div.style.borderRadius = "14px";
+  div.style.fontWeight = "bold";
+  div.style.boxShadow = "0 8px 24px rgba(0,0,0,.35)";
+  div.style.zIndex = "9999";
+  div.style.pointerEvents = "none";
+  div.innerText = text;
+
+  document.body.appendChild(div);
+
+  setTimeout(() => div.remove(), 1600);
+}
   function award({coins=10, xp=0, badge=null} = {}) {
   state.coins += coins;
   state.xp += xp;
@@ -242,11 +261,16 @@
   }
 
   function next() {
-    state.step++;
-    setProgress();
-    render();
+  state.step++;
+  setProgress();
+
+  if (state.step >= 1 && state.step <= 11) {
+    showMissionMessage(`Nova missão desbloqueada: ${state.step}/11`);
   }
 
+  render();
+}
+  
   function back() {
     state.step = Math.max(0, state.step - 1);
     setProgress();

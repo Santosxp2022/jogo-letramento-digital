@@ -66,13 +66,6 @@
   alunoSelecionado = null;
   return alunosCache;
 }
-  // COLE A URL DO SEU WEB APP AQUI (termina com /exec)
- <script>
-  // 1) URL primeiro (antes de usar)
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjNyAhaA0USNhwdLfJ_c7PD0IY9FZ-ej24f4lvDDchOjhIPj_A4hQFKFYPdFIkYjvy/exec";
-
-  let alunosCache = [];
-  let alunoSelecionado = null;
 
   async function carregarAlunosPorCurso(curso) {
     const url = `${WEB_APP_URL}?fn=alunos&curso=${encodeURIComponent(curso)}`;
